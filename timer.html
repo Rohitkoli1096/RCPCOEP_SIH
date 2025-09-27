@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Safety Timer</title>
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    background: #fff;
+    color: #000;
+  }
+  header {
+    background-color: #1e88e5;
+    color: white;
+    padding: 12px 0;
+    text-align: center;
+    font-size: 18px;
+    font-weight: 600;
+    position: relative;
+  }
+  .back-arrow, .menu-icon {
+    position: absolute;
+    top: 12px;
+    font-size: 20px;
+    cursor: pointer;
+    text-decoration: none; /* Remove underline for link */
+    color: white; /* Make link white */
+  }
+  .back-arrow {
+    left: 15px;
+  }
+  .menu-icon {
+    right: 15px;
+  }
+  .container {
+    max-width: 320px;
+    margin: 30px auto 0;
+    text-align: center;
+    padding: 0 15px;
+  }
+  .timer-circle {
+    width: 260px;
+    height: 260px;
+    margin: 0 auto 25px;
+    border: 10px solid #b6d7fd;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 48px;
+    font-weight: 500;
+    color: black;
+    flex-direction: column;
+  }
+  .timer-status {
+    font-size: 14px;
+    margin-top: 6px;
+    color: #444;
+    font-weight: 400;
+  }
+  #start-stop-btn {
+    width: 260px;
+    background-color: #1e88e5;
+    border: none;
+    color: white;
+    font-weight: 700;
+    font-size: 16px;
+    padding: 12px 0;
+    border-radius: 6px;
+    cursor: pointer;
+  }
+  #reset-btn {
+    margin-top: 15px;
+    width: 260px;
+    background: white;
+    border: 1px solid #ccc;
+    color: black;
+    font-weight: 700;
+    font-size: 14px;
+    padding: 10px 0;
+    border-radius: 6px;
+    cursor: pointer;
+  }
+  .quick-set {
+    margin-top: 40px;
+    border: 1px solid #ddd;
+    padding: 12px 15px;
+    border-radius: 15px;
+    text-align: left;
+  }
+  .quick-set h3 {
+    margin: 0 0 12px 0;
+    font-weight: 600;
+    font-size: 16px;
+  }
+  .quick-btn {
+    background: white;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 14px;
+    padding: 8px 14px;
+    margin-right: 12px;
+    cursor: pointer;
+    min-width: 65px;
+  }
+  .quick-btn:hover {
+    background: #e3f2fd;
+    border-color: #90caf9;
+  }
+  .footer-note {
+    margin-top: 55px;
+    font-size: 12px;
+    color: #777;
+    max-width: 280px;
+    margin-left: auto;
+    margin-right: auto;
+    line-height: 1.3;
+  }
+</style>
+</head>
+<body>
+<header>
+  <a href="safe2.html" class="back-arrow">&#8592;</a>
+  Safety Timer
+ 
+</header>
+
+<div class="container">
+  <div class="timer-circle">
+    <div id="time-display">15:00</div>
+    <div class="timer-status" id="timer-status">Timer Paused</div>
+  </div>
+
+  <button id="start-stop-btn">Start Timer</button>
+  <button id="reset-btn">Reset to 15 min</button>
+
+  <div class="quick-set">
+    <center>
+      <h3>Quick Set Timer</h3>
+      <button class="quick-btn" data-minutes="5">5 min</button>
+      <button class="quick-btn" data-minutes="10">10 min</button>
+      <button class="quick-btn" data-minutes="15">15 min</button>
+    </center>
+  </div>
+
+  <div class="footer-note">
+    If timer expires without check-in,<br />
+    emergency contacts will be notified
+  </div>
+</div>
+
+<script>
+  let timerDuration = 15 * 60; // 15 min in seconds
+  let remainingTime = timerDuration;
+  let timerInterval = null;
+
+  const timeDisplay = document.getElementById('time-display');
+  const timerStatus = document.getElementById('timer-status');
+  const startStopBtn = document.getElementById('start-stop-btn');
+  const resetBtn = document.getElementById('reset-btn');
+  const quickButtons = document.querySelectorAll('.quick-btn');
+
+  function formatTime(s) {
+    const m = Math.floor(s / 60);
+    const sec = s % 60;
+    return `${m.toString().padStart(2, '0')}:${sec.toString().padStart(2, '0')}`;
+  }
+
+  function updateDisplay() {
+    timeDisplay.textContent = formatTime(remainingTime);
+  }
+
+  function startTimer() {
+    if (timerInterval) return;
+    timerInterval = setInterval(() => {
+      if (remainingTime > 0) {
+        remainingTime--;
+        updateDisplay();
+      } else {
+        clearInterval(timerInterval);
+        timerInterval = null;
+        timerStatus.textContent = "Time's Up!";
+        startStopBtn.textContent = "Start Timer";
+        alert("Timer expired! Emergency contacts will be notified.");
+      }
+    }, 1000);
+    timerStatus.textContent = "Timer Running";
+    startStopBtn.textContent = "Pause Timer";
+  }
+
+  function pauseTimer() {
+    clearInterval(timerInterval);
+    timerInterval = null;
+    timerStatus.textContent = "Timer Paused";
+    startStopBtn.textContent = "Start Timer";
+  }
+
+  startStopBtn.addEventListener('click', () => {
+    if (timerInterval) {
+      pauseTimer();
+    } else {
+      startTimer();
+    }
+  });
+
+  resetBtn.addEventListener('click', () => {
+    pauseTimer();
+    remainingTime = timerDuration;
+    updateDisplay();
+  });
+
+  quickButtons.forEach(btn => {
+    btn.addEventListener('click', () => {
+      timerDuration = parseInt(btn.getAttribute('data-minutes')) * 60;
+      remainingTime = timerDuration;
+      pauseTimer();
+      updateDisplay();
+    });
+  });
+
+  updateDisplay();
+</script>
+</body>
+</html>
