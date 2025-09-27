@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Emergency Mode</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: linear-gradient(to bottom, #f44336, #d32f2f);
+      color: white;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      height: 100vh;
+      position: relative;
+    }
+
+    /* Back arrow styles */
+    .back-arrow {
+      position: absolute;
+      top: 15px;
+      left: 15px;
+      font-size: 28px;
+      color: white;
+      cursor: pointer;
+      user-select: none;
+      text-decoration: none;
+      font-weight: bold;
+    }
+    .back-arrow:hover {
+      color: #ffcccc;
+    }
+
+    .sos-button {
+      background-color: white;
+      color: red;
+      border-radius: 50%;
+      width: 180px;
+      height: 180px;
+      font-size: 32px;
+      font-weight: bold;
+      margin: 20px auto;
+      border: none;
+      box-shadow: 0 0 15px rgba(0, 0, 0, 0.3);
+      animation: blink 2s infinite;
+      transition: background-color 0.3s ease;
+    }
+
+    .sos-button:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    @keyframes blink {
+      0%, 100% {
+        opacity: 1;
+      }
+      50% {
+        opacity: 0.7;
+      }
+    }
+
+    .info-text {
+      margin-bottom: 30px;
+      font-size: 14px;
+    }
+
+    .btn {
+      background-color: rgba(255, 255, 255, 0.15);
+      border: 1px solid white;
+      color: white;
+      font-size: 16px;
+      padding: 12px 20px;
+      margin: 8px auto;
+      border-radius: 8px;
+      width: 80%;
+      max-width: 300px;
+      cursor: pointer;
+      transition: background 0.3s ease;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .btn:hover {
+      background-color: rgba(255, 255, 255, 0.25);
+    }
+
+    .footer {
+      position: absolute;
+      bottom: 10px;
+      width: 100%;
+      font-size: 14px;
+    }
+
+    .gps-indicator {
+      color: lime;
+    }
+
+    #countdownDisplay {
+      font-size: 16px;
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Back arrow -->
+  <a href="safe2.html" class="back-arrow">&#8592;</a>
+
+  <div>
+    <h3>Emergency Mode</h3>
+    <button class="sos-button" onclick="sendEmergencyAlert()" id="sosButton">SOS</button>
+    <div>Tap to send emergency alert</div>
+    <div class="info-text">Your location will be shared with emergency contacts</div>
+    <div id="countdownDisplay"></div>
+
+    <button class="btn" onclick="callEmergency()">📞 Call Emergency Services</button>
+    <button class="btn" onclick="sendLocation()">💬 Send Location to Contacts</button>
+    <button class="btn" onclick="playAlarm()">⚠️ Sound Alarm</button>
+
+    <div class="footer">
+      <span class="gps-indicator">●</span> GPS tracking active
+    </div>
+  </div>
+
+  <!-- Alarm Sound -->
+  <audio id="alarmSound">
+    <source src="https://www.free-sounds.net/sound-files/siren-sounds/SIREN01.WAV" type="audio/wav">
+    Your browser does not support the audio element.
+  </audio>
+
+  <script>
+    function sendEmergencyAlert() {
+      const sosBtn = document.getElementById("sosButton");
+      const countdownDisplay = document.getElementById("countdownDisplay");
+
+      let countdown = 3;
+      sosBtn.disabled = true;
+      sosBtn.innerText = countdown;
+      countdownDisplay.innerText = `Sending alert in ${countdown}...`;
+
+      const interval = setInterval(() => {
+        countdown--;
+        if (countdown > 0) {
+          sosBtn.innerText = countdown;
+          countdownDisplay.innerText = `Sending alert in ${countdown}...`;
+        } else {
+          clearInterval(interval);
+          sosBtn.innerText = "SOS";
+          sosBtn.disabled = false;
+          countdownDisplay.innerText = "";
+          alert("🚨 Emergency alert sent! Location shared with emergency contacts.");
+          sendLocation();
+        }
+      }, 1000);
+    }
+
+    function callEmergency() {
+      window.location.href = "tel:7020572471";
+    }
+
+    function sendLocation() {
+      if (!navigator.geolocation) {
+        alert("Geolocation is not supported by your browser.");
+        return;
+      }
+
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const { latitude, longitude } = position.coords;
+          const locationUrl = `https://maps.google.com/?q=${latitude},${longitude}`;
+          console.log("Location URL:", locationUrl);
+          alert(`Location sent to contacts:\n${locationUrl}`);
+        },
+        (error) => {
+          alert("Unable to retrieve location.");
+        }
+      );
+    }
+
+    function playAlarm() {
+      const alarm = document.getElementById("alarmSound");
+      alarm.play();
+    }
+  </script>
+
+</body>
+</html>
