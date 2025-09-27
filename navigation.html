@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Advanced Navigation</title>
+<style>
+  /* Reset & base */
+  body, html {
+    margin: 0; padding: 0;
+    font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+    background: #f0f9f4;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* Header */
+  header {
+    background-color: #3db45f;
+    color: white;
+    padding: 15px 0 45px;
+    text-align: center;
+    font-weight: 700;
+    font-size: 20px;
+    position: relative;
+    box-shadow: 0 3px 6px rgba(0,0,0,0.15);
+  }
+
+  /* Back arrow */
+  .back-arrow {
+    position: absolute;
+    left: 15px;
+    top: 18px;
+    font-size: 28px;
+    cursor: pointer;
+    transition: transform 0.3s ease;
+    user-select: none;
+  }
+  .back-arrow:hover {
+    transform: translateX(-6px);
+  }
+
+  /* Menu icon */
+  .menu-icon {
+    position: absolute;
+    right: 15px;
+    top: 18px;
+    font-size: 26px;
+    cursor: pointer;
+    user-select: none;
+  }
+
+  /* Subtitle */
+  .header-subtitle {
+    font-weight: 400;
+    font-size: 15px;
+    margin-top: 6px;
+    line-height: 1.3;
+  }
+  .header-subtitle .street {
+    font-size: 14px;
+    font-weight: 400;
+    opacity: 0.85;
+    margin-top: 3px;
+  }
+
+  /* Main card container */
+  .main-card {
+    background: #e8f5e9;
+    border: 2px solid #3db45f;
+    border-radius: 14px;
+    margin: 15px;
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 25px 20px 35px;
+    box-sizing: border-box;
+    position: relative;
+    box-shadow: 0 4px 12px rgba(61,180,95,0.2);
+  }
+
+  /* Safe route banner */
+  .safe-banner {
+    border: 2px solid #3db45f;
+    color: #3db45f;
+    border-radius: 18px;
+    padding: 10px 18px;
+    font-size: 15px;
+    width: 100%;
+    max-width: 360px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 40px;
+    user-select: none;
+    font-weight: 600;
+    box-shadow: inset 0 0 10px rgba(61,180,95,0.1);
+    background: #d9f0dc;
+  }
+  .safe-banner svg {
+    fill: #3db45f;
+    width: 24px;
+    height: 24px;
+    flex-shrink: 0;
+  }
+
+  /* Navigation icon and text */
+  .nav-icon {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 14px;
+    color: #3db45f;
+    font-weight: 700;
+    font-size: 18px;
+    user-select: none;
+    transition: transform 0.3s ease;
+  }
+  .nav-icon:hover {
+    transform: scale(1.04);
+  }
+  .nav-icon svg {
+    fill: #3db45f;
+    width: 52px;
+    height: 52px;
+    filter: drop-shadow(0 1px 1px rgba(0,0,0,0.05));
+  }
+  .nav-icon .subtitle {
+    font-weight: 500;
+    font-size: 15px;
+    color: #3db45f;
+  }
+
+  /* SOS floating button */
+  .sos-btn {
+    position: absolute;
+    bottom: 20px;
+    right: 20px;
+    background-color: #ef3a3a;
+    border: none;
+    border-radius: 50%;
+    width: 60px;
+    height: 60px;
+    color: white;
+    font-weight: 800;
+    font-size: 20px;
+    cursor: pointer;
+    box-shadow: 0 4px 10px rgba(239, 58, 58, 0.65);
+    user-select: none;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .sos-btn:hover:not(:disabled) {
+    background-color: #c72c2c;
+    transform: scale(1.1);
+  }
+  .sos-btn:disabled {
+    background-color: #f8a9a9;
+    cursor: not-allowed;
+    box-shadow: none;
+    transform: none;
+  }
+
+  /* Footer */
+  .footer {
+    margin: 15px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+
+  /* ETA info */
+  .eta-info {
+    font-size: 15px;
+    color: #333;
+    user-select: none;
+    flex-grow: 1;
+    line-height: 1.4;
+  }
+  .eta-info strong {
+    font-weight: 700;
+  }
+
+  /* Safe Route label */
+  .safe-label {
+    background: #c8e6c9;
+    color: #3db45f;
+    font-weight: 700;
+    font-size: 13px;
+    padding: 5px 14px;
+    border-radius: 22px;
+    margin-left: 12px;
+    display: inline-block;
+    user-select: none;
+    box-shadow: 0 1px 4px rgba(61,180,95,0.3);
+  }
+
+  /* Buttons container */
+  .footer-buttons {
+    display: flex;
+    gap: 14px;
+    flex-grow: 1;
+    max-width: 320px;
+  }
+
+  /* Buttons */
+  .footer-buttons button {
+    flex: 1;
+    padding: 14px 0;
+    border-radius: 10px;
+    border: none;
+    font-weight: 700;
+    font-size: 16px;
+    cursor: pointer;
+    user-select: none;
+    transition: background-color 0.3s ease;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+  }
+  .start-timer-btn {
+    background-color: #3db45f;
+    color: white;
+  }
+  .start-timer-btn:hover:not(:disabled) {
+    background-color: #2a7d39;
+  }
+  .start-timer-btn:disabled {
+    background-color: #a7d3aa;
+    cursor: not-allowed;
+  }
+
+  .end-trip-btn {
+    background-color: #f5f5f5;
+    color: #555;
+  }
+  .end-trip-btn:hover {
+    background-color: #ddd;
+  }
+
+  /* Responsive */
+  @media (max-width: 380px) {
+    .main-card {
+      margin: 10px 12px;
+      padding: 20px 12px 30px;
+    }
+    .safe-banner {
+      max-width: 100%;
+      font-size: 14px;
+      padding: 8px 14px;
+    }
+    .footer-buttons {
+      max-width: 100%;
+    }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <span class="back-arrow" role="button" aria-label="Go back" tabindex="0" onclick="goBack()">&#8592;</span>
+  Navigation
+  <span class="menu-icon" role="button" aria-label="Menu" tabindex="0">&#9776;</span>
+  <div class="header-subtitle" aria-live="polite">
+    <span id="distanceToTurn">Turn right in 200m</span>
+    <span class="street" id="streetName">onto Main Street</span>
+  </div>
+</header>
+
+<main class="main-card" role="main" aria-label="Navigation content">
+  <div class="safe-banner" aria-live="polite" aria-atomic="true">
+    <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+      <path d="M12 1L3 5v6c0 5 3.6 9 9 9s9-4 9-9V5l-9-4zM8.7 15.1L5.5 12.2 6.9 10.8l1.8 1.9 5.9-6 1.4 1.3-7.3 7.7z"/>
+    </svg>
+    You're on a safe route
+  </div>
+
+  <div class="nav-icon" aria-live="polite" aria-atomic="true">
+    <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+      <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/>
+    </svg>
+    <div>Turn-by-turn Navigation</div>
+    <div class="subtitle">Following safe route A</div>
+  </div>
+
+  <button class="sos-btn" id="sosBtn" aria-label="Send emergency SOS alert" onclick="handleSOS()">SOS</button>
+</main>
+
+<footer class="footer" role="contentinfo">
+  <div class="eta-info" aria-live="polite" aria-atomic="true">
+    ETA: <strong id="etaTime">6 minutes</strong><br />
+    1.8 km remaining
+    <span class="safe-label">Safe Route</span>
+  </div>
+
+  <div class="footer-buttons">
+    <button id="startTimerBtn" class="start-timer-btn" onclick="startTimer()">Start Timer</button>
+    <button id="endTripBtn" class="end-trip-btn" onclick="endTrip()">End Trip</button>
+  </div>
+</footer>
+
+<script>
+  // Go back to safe2.html on back arrow click
+  function goBack() {
+    window.location.href = 'safe2.html';
+  }
+
+  // Make back arrow accessible via keyboard
+  document.querySelector('.back-arrow').addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      goBack();
+    }
+  });
+
+  // SOS button logic
+  const sosBtn = document.getElementById('sosBtn');
+  let sosCooldown = false;
+
+  function handleSOS() {
+    if (sosCooldown) return;
+    sosBtn.disabled = true;
+    sosCooldown = true;
+
+    window.location.href = 'sos.html';
+  }
+
+  // Timer logic
+  const startTimerBtn = document.getElementById('startTimerBtn');
+  const endTripBtn = document.getElementById('endTripBtn');
+  const etaTime = document.getElementById('etaTime');
+  const distanceToTurn = document.getElementById('distanceToTurn');
+  const streetName = document.getElementById('streetName');
+
+  let timer = null;
+  let secondsElapsed = 0;
+
+  function startTimer() {
+    if (timer) return; // Already running
+
+    startTimerBtn.disabled = true;
+    secondsElapsed = 0;
+    updateETA(360); // 6 minutes initially (360s)
+
+    timer = setInterval(() => {
+      secondsElapsed++;
+      const remainingSeconds = 360 - secondsElapsed;
+      if (remainingSeconds <= 0) {
+        endTrip();
+        alert("You've arrived at your destination!");
+        return;
+      }
+      updateETA(remainingSeconds);
+    }, 1000);
+  }
+
+  function endTrip() {
+    if (timer) {
+      clearInterval(timer);
+      timer = null;
+    }
+    startTimerBtn.disabled = false;
+    etaTime.textContent = '6 minutes';
+    distanceToTurn.textContent = 'Turn right in 200m';
+    streetName.textContent = 'onto Main Street';
+  }
+
+  // Update ETA and distance text based on seconds left
+  function updateETA(seconds) {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    etaTime.textContent = `${mins} minute${mins !== 1 ? 's' : ''}${secs > 0 ? ' ' + secs + 's' : ''}`;
+
+    // Fake dynamic distance and direction
+    if (seconds > 300) {
+      distanceToTurn.textContent = 'Turn right in 200m';
+      streetName.textContent = 'onto Main Street';
+    } else if (seconds > 150) {
+      distanceToTurn.textContent = 'Turn right in 100m';
+      streetName.textContent = 'onto Main Street';
+    } else if (seconds > 60) {
+      distanceToTurn.textContent = 'Turn right in 50m';
+      streetName.textContent = 'onto Main Street';
+    } else {
+      distanceToTurn.textContent = 'Make your turn now';
+      streetName.textContent = '';
+    }
+  }
+</script>
+
+</body>
+</html>
