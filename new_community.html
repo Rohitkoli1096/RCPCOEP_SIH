@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Add New Community</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f3f4f6;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      margin: 0;
+    }
+
+    .form-container {
+      background: #ffffff;
+      padding: 25px;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      width: 100%;
+      max-width: 480px;
+    }
+
+    .form-container h2 {
+      text-align: center;
+      margin-bottom: 20px;
+      color: #1f2937;
+    }
+
+    label {
+      display: block;
+      margin: 10px 0 5px;
+      font-weight: 600;
+      color: #374151;
+    }
+
+    input, textarea, select {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 15px;
+      border-radius: 8px;
+      border: 1px solid #d1d5db;
+      font-size: 14px;
+      background: #f9fafb;
+    }
+
+    textarea {
+      resize: vertical;
+      min-height: 80px;
+    }
+
+    .btn {
+      width: 100%;
+      padding: 12px;
+      background: #2563eb;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+
+    .btn:hover {
+      background: #1e40af;
+    }
+
+    .back-btn {
+      margin-top: 10px;
+      background: #6b7280;
+    }
+
+    .back-btn:hover {
+      background: #374151;
+    }
+
+    .success {
+      display: none;
+      text-align: center;
+      color: #16a34a;
+      font-weight: bold;
+      margin-bottom: 15px;
+    }
+  </style>
+</head>
+<body>
+
+  <div >
+    <h2>Add New Community</h2>
+    <p id="successMessage" class="success">✅ Community added successfully!</p>
+
+    <form id="communityForm">
+      <label for="name">Community Name</label>
+      <input type="text" id="name" name="name" placeholder="Enter community name" required>
+
+      <label for="location">Location</label>
+      <input type="text" id="location" name="location" placeholder="Enter community location" required>
+
+      <label for="category">Category</label>
+      <select id="category" name="category" required>
+        <option value="">-- Select Category --</option>
+        <option value="safety">Safety</option>
+        <option value="environment">Environment</option>
+        <option value="education">Education</option>
+        <option value="social">Social</option>
+      </select>
+
+      <label for="desc">Description</label>
+      <textarea id="desc" name="description" placeholder="Write a short description..." required></textarea>
+
+      <label for="contact">Contact Email</label>
+      <input type="email" id="contact" name="contact" placeholder="Enter contact email" required>
+
+      <button type="submit" class="btn">Submit Community</button>
+      <button type="button" class="btn back-btn" onclick="window.location.href='community.html'">Back</button>
+    </form>
+  </div>
+
+  <script>
+    const form = document.getElementById('communityForm');
+    const successMessage = document.getElementById('successMessage');
+
+    form.addEventListener('submit', function(e) {
+      e.preventDefault();
+
+      // Save community data locally (for demo)
+      const community = {
+        name: form.name.value,
+        location: form.location.value,
+        category: form.category.value,
+        description: form.description.value,
+        contact: form.contact.value
+      };
+
+      // Store in localStorage
+      let communities = JSON.parse(localStorage.getItem('communities')) || [];
+      communities.push(community);
+      localStorage.setItem('communities', JSON.stringify(communities));
+
+      // Show success message
+      successMessage.style.display = 'block';
+
+      // Reset form
+      form.reset();
+    });
+  </script>
+
+</body>
+</html>
