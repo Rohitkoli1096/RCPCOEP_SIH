@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Predictive Analytics</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+<style>
+  /* Reset and base */
+  html, body {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    width: 100%;
+    background: #f8fafc;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  }
+  body {
+    /* make body full screen flex container */
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    width: 100vw;
+    overflow: hidden; /* prevent body scroll */
+  }
+  /* Main wrapper fills viewport fully */
+  div[role="main"] {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    width: 100%;
+    background: white;
+  }
+  header {
+    background: linear-gradient(135deg, #7b2ff7, #a044ff);
+    color: white;
+    padding: 16px;
+    font-size: 18px;
+    font-weight: 600;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  header i {
+    cursor: pointer;
+    font-size: 18px;
+  }
+  main {
+    flex: 1;
+    padding: 16px;
+    overflow-y: auto; /* scroll if content taller */
+  }
+
+  /* AI Safety Predictions card */
+  .ai-card {
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+    padding: 16px;
+    margin-bottom: 20px;
+  }
+  .ai-card h3 {
+    margin: 0 0 6px 0;
+    font-size: 16px;
+    color: #6a3093;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .ai-card p {
+    margin: 0 0 12px 0;
+    font-size: 13px;
+    color: #444;
+  }
+  .stats {
+    display: flex;
+    justify-content: space-around;
+    font-weight: 600;
+    font-size: 14px;
+  }
+  .stats span {
+    display: flex;
+    flex-direction: column;
+    color: #222;
+  }
+  .stats small {
+    font-weight: normal;
+    font-size: 12px;
+    color: #777;
+    margin-top: 2px;
+  }
+  .stats .accuracy { color: #34a853; }
+  .stats .forecast { color: #7b2ff7; }
+  .stats .data { color: #1a73e8; }
+
+  /* Risk Cards with different colors */
+  .risk-card {
+    border-left: 5px solid;
+    background: white;
+    border-radius: 12px;
+    padding: 14px;
+    margin-bottom: 18px;
+    color: #3b2f00;
+    font-size: 13px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+  }
+  .risk-card.medium {
+    border-color: #f9b700;
+    background: #fff9e6;
+    color: #3b2f00;
+  }
+  .risk-card.high {
+    border-color: #e53935;
+    background: #ffebee;
+    color: #b71c1c;
+  }
+  .risk-card.low {
+    border-color: #43a047;
+    background: #e8f5e9;
+    color: #1b5e20;
+  }
+  .risk-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+  }
+  .risk-header .area {
+    font-weight: 600;
+    font-size: 15px;
+  }
+  .risk-header .tag {
+    padding: 4px 10px;
+    border-radius: 14px;
+    font-weight: 600;
+    font-size: 12px;
+  }
+  .risk-card.medium .risk-header .tag {
+    background: #f9b700;
+    color: #7b5e00;
+  }
+  .risk-card.high .risk-header .tag {
+    background: #e53935;
+    color: #fff;
+  }
+  .risk-card.low .risk-header .tag {
+    background: #43a047;
+    color: #fff;
+  }
+  .confidence {
+    font-size: 12px;
+    margin-bottom: 10px;
+  }
+  .factors {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-bottom: 14px;
+  }
+  .factor {
+    background: #f4f1db;
+    color: #7b5e00;
+    padding: 6px 12px;
+    border-radius: 14px;
+    font-weight: 600;
+    font-size: 12px;
+  }
+  .risk-card.high .factor {
+    background: #fbe9e7;
+    color: #b71c1c;
+  }
+  .risk-card.low .factor {
+    background: #d0f0c0;
+    color: #1b5e20;
+  }
+  .confidence-bar {
+    height: 8px;
+    border-radius: 6px;
+    background: #ddd7c4;
+    overflow: hidden;
+  }
+  .confidence-bar-inner {
+    height: 100%;
+    transition: width 0.3s ease;
+  }
+  .risk-card.medium .confidence-bar-inner {
+    background: #f9b700;
+    width: 76%;
+  }
+  .risk-card.high .confidence-bar-inner {
+    background: #e53935;
+    width: 90%;
+  }
+  .risk-card.low .confidence-bar-inner {
+    background: #43a047;
+    width: 45%;
+  }
+
+  /* Info Box */
+  .info-box {
+    background: #dbe9ff;
+    color: #27408b;
+    border-radius: 12px;
+    padding: 14px 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 6px rgba(39,64,139,0.15);
+    font-size: 13px;
+    line-height: 1.5;
+  }
+  .info-box strong {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 700;
+    font-size: 15px;
+  }
+  .info-box ul {
+    padding-left: 20px;
+    margin: 0;
+  }
+  .info-box ul li {
+    margin-bottom: 6px;
+  }
+
+  /* Footer */
+  footer {
+    padding: 16px;
+    border-top: 1px solid #eee;
+    background: white;
+  }
+  .primary-btn {
+    width: 100%;
+    background: #7b2ff7;
+    color: white;
+    padding: 12px;
+    font-weight: 700;
+    border: none;
+    border-radius: 8px;
+    font-size: 15px;
+    cursor: pointer;
+    margin-bottom: 12px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+  }
+  .footer-buttons {
+    display: flex;
+    gap: 10px;
+  }
+  .footer-buttons button {
+    flex: 1;
+    background: #f1f3f4;
+    border: none;
+    padding: 10px;
+    border-radius: 8px;
+    font-size: 13px;
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 6px;
+  }
+  .footer-buttons button:hover {
+    background: #e0e0e0;
+  }
+</style>
+</head>
+<body>
+  <div role="main" aria-label="Predictive Analytics">
+    <header>
+        <span class="back-arrow" onclick="window.location.href='safe2.html'">&#8592;</span>
+      Predictive Analytics
+      <i class= aria-label="Menu"></i>
+    </header>
+
+    <main>
+      <section class="ai-card" aria-labelledby="ai-safety-title">
+        <h3 id="ai-safety-title"><i class="fas fa-brain"></i> AI Safety Predictions</h3>
+        <p>Machine learning-powered risk assessment</p>
+        <div class="stats" role="list">
+          <span class="accuracy" role="listitem">
+            85%<small>Accuracy</small>
+          </span>
+          <span class="forecast" role="listitem">
+            12hrs<small>Forecast</small>
+          </span>
+          <span class="data" role="listitem">
+            5K+<small>Data Points</small>
+          </span>
+        </div>
+      </section>
+
+      <!-- Risk cards -->
+      <section class="risk-card medium" aria-labelledby="risk-area-title-1">
+        <div class="risk-header">
+          <span class="area" id="risk-area-title-1">University Campus</span>
+          <span class="tag">Medium Risk</span>
+        </div>
+        <div class="confidence">Evening hours</div>
+        <div class="confidence" style="margin-bottom: 12px;">76% confidence</div>
+
+        <div class="factors" aria-label="Key Factors">
+          <span class="factor">Student events</span>
+          <span class="factor">Moderate lighting</span>
+          <span class="factor">Security patrols</span>
+        </div>
+
+        <div class="confidence-bar" aria-label="Prediction confidence bar">
+          <div class="confidence-bar-inner"></div>
+        </div>
+      </section>
+
+      <section class="risk-card high" aria-labelledby="risk-area-title-2">
+        <div class="risk-header">
+          <span class="area" id="risk-area-title-2">Downtown Area</span>
+          <span class="tag">High Risk</span>
+        </div>
+        <div class="confidence">Night hours</div>
+        <div class="confidence" style="margin-bottom: 12px;">90% confidence</div>
+
+        <div class="factors" aria-label="Key Factors">
+          <span class="factor">High crime rates</span>
+          <span class="factor">Poor lighting</span>
+          <span class="factor">Sparse security</span>
+        </div>
+
+        <div class="confidence-bar" aria-label="Prediction confidence bar">
+          <div class="confidence-bar-inner"></div>
+        </div>
+      </section>
+
+      <section class="risk-card low" aria-labelledby="risk-area-title-3">
+        <div class="risk-header">
+          <span class="area" id="risk-area-title-3">Suburban Park</span>
+          <span class="tag">Low Risk</span>
+        </div>
+        <div class="confidence">Daytime</div>
+        <div class="confidence" style="margin-bottom: 12px;">45% confidence</div>
+
+        <div class="factors" aria-label="Key Factors">
+          <span class="factor">Good lighting</span>
+          <span class="factor">Regular patrols</span>
+          <span class="factor">Community presence</span>
+        </div>
+
+        <div class="confidence-bar" aria-label="Prediction confidence bar">
+          <div class="confidence-bar-inner"></div>
+        </div>
+      </section>
+
+      <section class="info-box" aria-label="How AI Predictions Work">
+        <strong>How AI Predictions Work</strong>
+        <ul>
+          <li>Analyzes 50+ safety factors in real-time</li>
+          <li>Processes crime data, lighting, and foot traffic</li>
+        </ul>
+      </section>
+    </main>
+
+    <footer>
+      <button class="primary-btn" type="button" aria-label="Generate route with predictions">
+        <i class="fas fa-bullseye"></i> Generate Route with Predictions
+      </button>
+      <div class="footer-buttons">
+        <button type="button" aria-label="Alert Settings">
+          <i class="fas fa-bell"></i> Alert Settings
+        </button>
+        <button type="button" aria-label="Machine Learning Settings">
+          <i class="fas fa-cogs"></i> ML Settings
+        </button>
+      </div>
+    </footer>
+  </div>
+</body>
+</html>
