@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>ARIA – AI Risk Intelligence Assistant</title>
+  <style>
+    /* Reset & base */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Segoe UI', Roboto, sans-serif;
+    }
+
+    html, body {
+      height: 100%;
+      width: 100%;
+      background: linear-gradient(to bottom right, #f0f4ff, #e6efff);
+      color: #2a2e43;
+    }
+
+    body {
+      display: flex;
+      flex-direction: column;
+      padding: 20px 32px;
+      min-height: 100vh;
+    }
+
+    /* Header */
+    header {
+      background-color: #1e5ee0;
+      color: white;
+      text-align: center;
+      padding: 24px 0;
+      border-radius: 12px;
+      user-select: none;
+      box-shadow: 0 6px 15px rgba(30, 94, 224, 0.3);
+    }
+
+    header img {
+      width: 56px;
+      margin-bottom: 10px;
+    }
+
+    header h1 {
+      font-size: 24px;
+      font-weight: 700;
+      line-height: 1;
+    }
+
+    header p {
+      font-size: 14px;
+      color: #d2e3ff;
+      margin-top: 4px;
+    }
+
+    /* Welcome Section */
+    .welcome {
+      background-color: #eaf2ff;
+      margin: 24px 0;
+      padding: 20px;
+      border-radius: 12px;
+      border: 1px solid #dce8ff;
+      user-select: none;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    }
+
+    .welcome h2 {
+      font-size: 16px;
+      margin-bottom: 10px;
+      font-weight: 600;
+    }
+
+    .welcome ul {
+      margin-left: 18px;
+      font-size: 14px;
+      line-height: 1.6;
+    }
+
+    /* Processing Box */
+    .processing {
+      display: none;
+      background: #d1f5e3;
+      color: #215c36;
+      padding: 14px 20px;
+      border-left: 5px solid #28a745;
+      font-size: 14px;
+      border-radius: 8px;
+      margin-bottom: 24px;
+      user-select: none;
+      box-shadow: 0 3px 10px rgba(40,167,69,0.15);
+    }
+
+    /* Commands */
+    .commands {
+      margin-bottom: 24px;
+      user-select: none;
+    }
+
+    .commands button {
+      width: 100%;
+      padding: 14px 18px;
+      margin-bottom: 12px;
+      font-size: 15px;
+      background-color: #f3f6ff;
+      color: #1d3e84;
+      border: 1px solid #d1dbf0;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: background-color 0.2s ease, transform 0.1s ease;
+      text-align: left;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+    }
+
+    .commands button:hover {
+      background-color: #d9e7ff;
+      transform: scale(1.02);
+    }
+
+    /* Input footer */
+    footer {
+      display: flex;
+      gap: 14px;
+    }
+
+    footer input {
+      flex: 1;
+      padding: 12px 16px;
+      font-size: 16px;
+      border-radius: 12px;
+      border: 1.5px solid #b0c4ff;
+      outline: none;
+      transition: border-color 0.3s ease;
+      box-shadow: 0 2px 6px rgba(30, 94, 224, 0.1);
+    }
+
+    footer input:focus {
+      border-color: #1e5ee0;
+      box-shadow: 0 0 10px rgba(30, 94, 224, 0.3);
+    }
+
+    footer button {
+      background: #1e5ee0;
+      border: none;
+      color: white;
+      font-size: 20px;
+      border-radius: 50%;
+      width: 48px;
+      height: 48px;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(30, 94, 224, 0.3);
+      transition: background-color 0.3s ease;
+      user-select: none;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    footer button:hover {
+      background: #1549b3;
+    }
+
+    footer button.recording {
+      background: #dc3545;
+      box-shadow: 0 4px 12px rgba(220, 53, 69, 0.6);
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <img src="https://img.icons8.com/ios-filled/50/ffffff/robot.png" alt="ARIA Bot Icon"/>
+    <h1>ARIA</h1>
+    <p>AI Risk Intelligence Assistant</p>
+  </header>
+
+  <section class="welcome" aria-label="Welcome and features introduction">
+    <h2>Hello! I'm ARIA, your AI safety assistant. I can help you:</h2>
+    <ul>
+      <li>Find the safest routes using real-time data</li>
+      <li>Predict safety risks based on patterns</li>
+      <li>Provide personalized safety recommendations</li>
+      <li>Monitor your family’s safety status</li>
+    </ul>
+  </section>
+
+  <div class="processing" id="processingBox" aria-live="polite" aria-atomic="true">
+    Processing: "<span id="processingText"></span>"...
+  </div>
+
+  <section class="commands" aria-label="Quick commands">
+    <button onclick="processCommand('What’s the safest route to downtown?')">📍 What's the safest route to downtown?</button>
+    <button onclick="processCommand('Are there any safety alerts in my area?')">🚨 Are there any safety alerts in my area?</button>
+    <button onclick="processCommand('Find me a well-lit route home')">💡 Find me a well-lit route home</button>
+    <button onclick="processCommand('Show me family member locations')">👨‍👩‍👧‍👦 Show me family member locations</button>
+    <button onclick="processCommand('What’s the crime rate on Main Street?')">📊 What's the crime rate on Main Street?</button>
+  </section>
+
+  <footer>
+    <input
+      type="text"
+      id="userInput"
+      placeholder="Type your question..."
+      aria-label="User input"
+      autocomplete="off"
+      spellcheck="false"
+    />
+    <button id="micBtn" aria-label="Start/stop voice input">🎤</button>
+  </footer>
+
+  <script>
+    // Elements
+    const micBtn = document.getElementById('micBtn');
+    const userInput = document.getElementById('userInput');
+    const processingBox = document.getElementById('processingBox');
+    const processingText = document.getElementById('processingText');
+
+    // SpeechRecognition setup
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    let recognition;
+    let isRecording = false;
+
+    if (SpeechRecognition) {
+      recognition = new SpeechRecognition();
+      recognition.continuous = false;
+      recognition.lang = 'en-US';
+      recognition.interimResults = false;
+
+      recognition.onstart = () => {
+        isRecording = true;
+        micBtn.classList.add('recording');
+        micBtn.textContent = '🎙️'; // Show recording icon
+      };
+
+      recognition.onend = () => {
+        isRecording = false;
+        micBtn.classList.remove('recording');
+        micBtn.textContent = '🎤';
+      };
+
+      recognition.onerror = (event) => {
+        console.error('Speech recognition error', event.error);
+        alert('Speech recognition error: ' + event.error);
+        isRecording = false;
+        micBtn.classList.remove('recording');
+        micBtn.textContent = '🎤';
+      };
+
+      recognition.onresult = (event) => {
+        const transcript = event.results[0][0].transcript.trim();
+        userInput.value = transcript;
+        processCommand(transcript);
+      };
+    } else {
+      micBtn.disabled = true;
+      micBtn.title = 'Speech recognition not supported in this browser';
+    }
+
+    micBtn.addEventListener('click', () => {
+      if (!recognition) return;
+
+      if (isRecording) {
+        recognition.stop();
+      } else {
+        recognition.start();
+      }
+    });
+
+    // Process command and show processing box
+    function processCommand(text) {
+      processingText.textContent = text;
+      processingBox.style.display = 'block';
+
+      setTimeout(() => {
+        alert(`✅ ARIA has processed: "${text}"`);
+        processingBox.style.display = 'none';
+      }, 2000);
+    }
+
+    // Handle manual input send via button or Enter key
+    userInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        handleInput();
+      }
+    });
+
+    function handleInput() {
+      const value = userInput.value.trim();
+      if (value) {
+        processCommand(value);
+        userInput.value = '';
+      }
+    }
+  </script>
+</body>
+</html>
