@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Report Incident</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap');
+  /* Reset */
+  *, *::before, *::after {
+    box-sizing: border-box;
+  }
+  body, html {
+    margin: 0; padding: 0;
+    height: 100%;
+    background: #f7f9fb;
+    font-family: 'Inter', sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    color: #222;
+  }
+
+  .container {
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    background: white;
+  }
+
+  /* Header */
+  header {
+    background-color: #1571ff;
+    color: white;
+    font-weight: 600;
+    font-size: 18px;
+    height: 56px;
+    display: flex;
+    align-items: center;
+    padding: 0 20px;
+    position: relative;
+    user-select: none;
+  }
+  .back-btn, .menu-btn {
+    cursor: pointer;
+    stroke: white;
+    stroke-width: 2.2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    fill: none;
+    user-select: none;
+    width: 24px;
+    height: 24px;
+  }
+  .back-btn {
+    position: absolute;
+    left: 20px;
+  }
+  .menu-btn {
+    position: absolute;
+    right: 20px;
+    fill: white;
+    stroke: none;
+  }
+  .title {
+    flex: 1;
+    text-align: center;
+    pointer-events: none;
+  }
+
+  /* Form container with padding */
+  form {
+    padding: 20px 24px 40px;
+    flex-grow: 1;
+    overflow-y: auto;
+  }
+
+  label.section-label {
+    font-weight: 600;
+    font-size: 14px;
+    margin-bottom: 10px;
+    display: block;
+    user-select: none;
+  }
+
+  /* Incident Type buttons grid */
+  .incident-types {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px 16px;
+    margin-bottom: 24px;
+  }
+
+  .incident-type-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 16px 10px;
+    border: none;
+    border-radius: 12px;
+    font-weight: 600;
+    font-size: 13px;
+    cursor: pointer;
+    background-color: white;
+    color: #222;
+    user-select: none;
+    transition: background-color 0.3s, color 0.3s;
+  }
+  .incident-type-btn svg {
+    width: 24px;
+    height: 24px;
+    stroke: #555;
+    stroke-width: 1.5;
+    fill: none;
+  }
+  .incident-type-btn:hover {
+    background-color: #e4e9f9;
+    color: #1571ff;
+  }
+  .incident-type-btn.active {
+    background-color: #e4e9f9;
+    color: #1571ff;
+  }
+  .incident-type-btn.active svg {
+    stroke: #1571ff;
+    fill: #1571ff;
+    opacity: 0.9;
+  }
+
+  /* Location pill */
+  .location-pill {
+    display: inline-block;
+    background: #e7e9ee;
+    border-radius: 12px;
+    padding: 10px 14px;
+    font-size: 13px;
+    font-weight: 500;
+    color: #555;
+    margin-bottom: 24px;
+    user-select: none;
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  /* Description */
+  textarea {
+    width: 100%;
+    min-height: 90px;
+    border: none;
+    border-radius: 12px;
+    font-size: 14px;
+    padding: 12px 14px;
+    resize: vertical;
+    font-family: 'Inter', sans-serif;
+    color: #666;
+    margin-bottom: 24px;
+    outline-offset: 2px;
+    outline-color: transparent;
+    transition: outline-color 0.3s, background-color 0.3s;
+    background: #f7f9fb;
+  }
+  textarea::placeholder {
+    color: #bbb;
+  }
+  textarea:focus {
+    outline-color: #1571ff;
+    background: white;
+  }
+
+  /* Time selection buttons grid */
+  .time-select {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px 16px;
+    margin-bottom: 24px;
+  }
+  .time-btn {
+    background: white;
+    border: none;
+    border-radius: 12px;
+    font-weight: 600;
+    font-size: 13px;
+    padding: 10px 0;
+    cursor: pointer;
+    color: #222;
+    user-select: none;
+    text-align: center;
+    transition: background-color 0.3s, color 0.3s;
+  }
+  .time-btn:hover {
+    background-color: #e4e9f9;
+    color: #1571ff;
+  }
+  .time-btn.active {
+    background-color: #e4e9f9;
+    color: #1571ff;
+  }
+
+  /* Toggle switch container */
+  .toggle-container {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 32px;
+  }
+  .toggle-label {
+    font-weight: 600;
+    font-size: 14px;
+    user-select: none;
+  }
+  /* Hide native checkbox */
+  .toggle-switch input[type="checkbox"] {
+    display: none;
+  }
+  /* Custom toggle slider */
+  .toggle-switch label {
+    position: relative;
+    display: inline-block;
+    width: 38px;
+    height: 22px;
+    background: #ddd;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+  }
+  .toggle-switch label::after {
+    content: "";
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    width: 18px;
+    height: 18px;
+    background: white;
+    border-radius: 50%;
+    transition: transform 0.3s;
+  }
+  .toggle-switch input[type="checkbox"]:checked + label {
+    background-color: #1571ff;
+  }
+  .toggle-switch input[type="checkbox"]:checked + label::after {
+    transform: translateX(16px);
+  }
+
+  /* Submit button */
+  .submit-btn {
+    width: 100%;
+    background-color: #f99191;
+    border: none;
+    border-radius: 16px;
+    font-weight: 600;
+    font-size: 16px;
+    color: white;
+    padding: 14px 0;
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+    user-select: none;
+    box-shadow: 0 6px 8px rgb(249 145 145 / 0.6);
+    transition: background-color 0.3s;
+  }
+  .submit-btn:hover:not(:disabled) {
+    background-color: #e56b6b;
+  }
+  .submit-btn:disabled {
+    background-color: #f9c1c1;
+    cursor: not-allowed;
+  }
+
+  /* Submit button icon */
+  .submit-btn svg {
+    width: 18px;
+    height: 18px;
+    stroke: white;
+    stroke-width: 1.5;
+    stroke-linejoin: round;
+    stroke-linecap: round;
+    fill: none;
+  }
+</style>
+</head>
+<body>
+<div class="container" role="main" aria-label="Report Incident Form">
+  <header>
+
+        <span class="back-arrow" onclick="window.location.href='community.html'">&#8592;</span>
+    <div class="title" aria-live="polite">Report Incident</div>
+  
+  </header>
+
+  <form>
+    <label class="section-label" for="incident-type">Incident Type</label>
+    <div class="incident-types" role="radiogroup" aria-labelledby="incident-type-label" id="incident-type">
+      <button type="button" class="incident-type-btn" data-value="harassment" aria-pressed="false" tabindex="0" aria-label="Harassment">
+        <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2zm0 16v-2m0-8v2" stroke-linecap="round"/></svg>
+        Harassment
+      </button>
+      <button type="button" class="incident-type-btn" data-value="lighting" aria-pressed="false" tabindex="-1" aria-label="Poor Lighting">
+        <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="5" stroke-linecap="round"/></svg>
+        Poor Lighting
+      </button>
+      <button type="button" class="incident-type-btn active" data-value="suspicious" aria-pressed="true" tabindex="-1" aria-label="Suspicious Activity">
+        <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M5 12h14M12 5v14" stroke-linecap="round"/></svg>
+        Suspicious Activity
+      </button>
+      <button type="button" class="incident-type-btn" data-value="unsafe" aria-pressed="false" tabindex="-1" aria-label="Unsafe Area">
+        <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="6" y="6" width="12" height="12" stroke-linejoin="round" stroke-linecap="round"/></svg>
+        Unsafe Area
+      </button>
+    </div>
+
+    <label class="section-label" for="location">Location</label>
+    <div id="location" class="location-pill" tabindex="0" aria-label="Current Location Main Street and 5th Avenue">Current Location (Main Street &amp; 5th Ave)</div>
+
+    <label class="section-label" for="description">Description</label>
+    <textarea id="description" placeholder="Describe what happened (optional)" aria-describedby="desc-help"></textarea>
+
+    <label class="section-label" for="when">When did this occur?</label>
+    <div class="time-select" role="radiogroup" aria-labelledby="when-label" id="when">
+      <button type="button" class="time-btn active" data-value="just-now" aria-pressed="true" tabindex="0" aria-label="Just Now">Just Now</button>
+      <button type="button" class="time-btn" data-value="1-hour-ago" aria-pressed="false" tabindex="-1" aria-label="1 Hour Ago">1 Hour Ago</button>
+      <button type="button" class="time-btn" data-value="today" aria-pressed="false" tabindex="-1" aria-label="Today">Today</button>
+      <button type="button" class="time-btn" data-value="custom-time" aria-pressed="false" tabindex="-1" aria-label="Custom Time">Custom Time</button>
+    </div>
+
+    <div class="toggle-container">
+      <span class="toggle-label">Report Anonymously</span>
+      <div class="toggle-switch">
+        <input type="checkbox" id="anonymous" name="anonymous" aria-checked="false" />
+        <label for="anonymous" aria-label="Toggle report anonymously"></label>
+      </div>
+    </div>
+
+    <button type="submit" class="submit-btn" aria-label="Submit Report">
+      <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z" /></svg>
+      Submit Report
+    </button>
+  </form>
+</div>
+
+<script>
+  // Incident type buttons toggle behavior
+  const incidentBtns = document.querySelectorAll('.incident-type-btn');
+  incidentBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      incidentBtns.forEach(b => {
+        b.classList.remove('active');
+        b.setAttribute('aria-pressed', 'false');
+        b.tabIndex = -1;
+      });
+      btn.classList.add('active');
+      btn.setAttribute('aria-pressed', 'true');
+      btn.tabIndex = 0;
+      btn.focus();
+    });
+  });
+
+  // Time select buttons toggle behavior
+  const timeBtns = document.querySelectorAll('.time-btn');
+  timeBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      timeBtns.forEach(b => {
+        b.classList.remove('active');
+        b.setAttribute('aria-pressed', 'false');
+        b.tabIndex = -1;
+      });
+      btn.classList.add('active');
+      btn.setAttribute('aria-pressed', 'true');
+      btn.tabIndex = 0;
+      btn.focus();
+    });
+  });
+</script>
+</body>
+</html>
