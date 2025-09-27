@@ -1,282 +1,264 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Safe Route AI</title>
-  <!-- Font Awesome for icons -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <!-- Google Maps JS API -->
-  <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY"></script>
-  <style>
-    body {
-      margin: 0;
-      font-family: 'Segoe UI', Arial, sans-serif;
-      background: #f8fafc;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      height: 100vh;
-    }
-
-    .phone-frame {
-      width: 360px;
-      height: 800px;
-      border: 1px solid #ccc;
-      border-radius: 18px;
-      overflow: hidden;
-      display: flex;
-      flex-direction: column;
-      background: #f8fafc;
-      position: relative;
-    }
-
-    .topbar {
-      background: #2196f3;
-      color: white;
-      width: 100%;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 12px 16px;
-      font-size: 16px;
-      box-sizing: border-box;
-    }
-    .topbar .title {
-      font-weight: 600;
-    }
-    .topbar .icons {
-      font-size: 18px;
-    }
-
-    .destination-bar {
-      width: 90%;
-      margin: 10px auto;
-      display: flex;
-      align-items: center;
-      background: #fff;
-      border-radius: 8px;
-      padding: 8px 10px;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-      gap: 8px;
-    }
-    .destination-bar input {
-      flex: 1;
-      border: none;
-      outline: none;
-      font-size: 14px;
-    }
-    .destination-bar button {
-      border: none;
-      background: #2196f3;
-      color: white;
-      padding: 6px 10px;
-      border-radius: 6px;
-      cursor: pointer;
-    }
-
-    .safety-card {
-      background: #eafff0;
-      border: 1px solid #4caf50;
-      border-radius: 12px;
-      padding: 12px;
-      margin: 8px auto;
-      width: 90%;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      font-size: 14px;
-      color: #2e7d32;
-    }
-
-    /* Map area */
-    #map {
-      flex: 1;
-      width: 90%;
-      margin: 10px auto;
-      border-radius: 12px;
-      border: 2px dashed #90caf9;
-      background: #f9fcff;
-      position: relative;
-    }
-
-    .sos-container {
-      position: absolute;
-      bottom: 120px;
-      right: 20px;
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-    }
-    .sos-btn {
-      border-radius: 50%;
-      border: none;
-      cursor: pointer;
-      width: 60px;
-      height: 60px;
-      font-size: 16px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: white;
-      box-shadow: 0px 4px 8px rgba(0,0,0,0.2);
-    }
-    .quick {
-      background: orange;
-    }
-    .sos {
-      background: red;
-      font-weight: bold;
-    }
-
-    .menu {
-      background: white;
-      border-top: 1px solid #ddd;
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 10px;
-      padding: 12px;
-      width: 100%;
-      box-sizing: border-box;
-    }
-    .menu button {
-      border: none;
-      background: #f4f7fb;
-      border-radius: 12px;
-      padding: 8px;
-      font-size: 13px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-    }
-    .menu button i {
-      font-size: 18px;
-      margin-bottom: 4px;
-      color: #2196f3;
-    }
-    .menu button:hover {
-      background: #e3f2fd;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Safe Route AI</title>
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background: #f8fafc;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            height: 100vh;
+        }
+        
+        .phone-frame {
+            width: 360px;
+            height: 800px;
+            border: 1px solid #ccc;
+            border-radius: 18px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            background: #f8fafc;
+            position: relative;
+        }
+        
+        .topbar {
+            background: #2196f3;
+            color: white;
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 16px;
+            font-size: 16px;
+            box-sizing: border-box;
+        }
+        
+        .topbar .title {
+            font-weight: 600;
+        }
+        
+        .topbar .icons {
+            font-size: 18px;
+        }
+        
+        .destination-bar {
+            width: 90%;
+            margin: 10px auto;
+            display: flex;
+            align-items: center;
+            background: #fff;
+            border-radius: 8px;
+            padding: 8px 10px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            gap: 8px;
+        }
+        
+        .destination-bar input {
+            flex: 1;
+            border: none;
+            outline: none;
+            font-size: 14px;
+        }
+        
+        .destination-bar button {
+            border: none;
+            background: #2196f3;
+            color: white;
+            padding: 6px 10px;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+        
+        .safety-card {
+            background: #eafff0;
+            border: 1px solid #4caf50;
+            border-radius: 12px;
+            padding: 12px;
+            margin: 8px auto;
+            width: 90%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 14px;
+            color: #2e7d32;
+        }
+        /* Map area */
+        
+        #map {
+            flex: 1;
+            width: 90%;
+            margin: 10px auto;
+            border-radius: 12px;
+            border: 2px dashed #90caf9;
+            background: #f9fcff;
+            position: relative;
+        }
+        
+        .sos-container {
+            position: absolute;
+            bottom: 120px;
+            right: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        
+        .sos-btn {
+            border-radius: 50%;
+            border: none;
+            cursor: pointer;
+            width: 60px;
+            height: 60px;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+        }
+        
+        .quick {
+            background: orange;
+        }
+        
+        .sos {
+            background: red;
+            font-weight: bold;
+        }
+        
+        .menu {
+            background: white;
+            border-top: 1px solid #ddd;
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            padding: 12px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+        
+        .menu button {
+            border: none;
+            background: #f4f7fb;
+            border-radius: 12px;
+            padding: 8px;
+            font-size: 13px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+        
+        .menu button i {
+            font-size: 18px;
+            margin-bottom: 4px;
+            color: #2196f3;
+        }
+        
+        .menu button:hover {
+            background: #e3f2fd;
+        }
+    </style>
 </head>
+
 <body>
 
 
     <div class="topbar">
-      <span class="title"><i class="fa fa-bars"></i>  Wander Shield</span>
+        <span class="title"><i class="fa fa-bars"></i>  Wander Shield</span>
     </div>
 
     <div class="destination-bar">
-      <i class="fa fa-map-marker-alt" style="color:#2196f3;"></i>
-      <input type="text" id="destination" placeholder="Enter your destination...">
-      <button onclick="setDestination()">Go</button>
+        <i class="fa fa-map-marker-alt" style="color:#2196f3;"></i>
+        <input type="text" id="destination" placeholder="Enter your destination...">
+        <button onclick="setDestination()">Go</button>
     </div>
 
     <div class="safety-card">
-      <span><i class="fa fa-shield-alt"></i> AI Safety Score: 92% - Excellent conditions</span>
-      <i class="fa fa-copy"></i>
+        <span><i class="fa fa-shield-alt"></i> AI Safety Score: 92% - Excellent conditions</span>
+        <i class="fa fa-copy"></i>
     </div>
 
-    <div id="map"></div>
+    <div id="map" style="width:90%;height:220px;margin:10px auto;border-radius:12px;overflow:hidden; padding:0;">
+        <iframe width="100%" height="100%" frameborder="0" style="border:0; border-radius:12px; display:block;" src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3722.338384825045!2d74.8834274!3d21.350136!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.23!3m3!1m2!1s0x0%3A0x0!2zMjHCsDIxJzAxLjAiTiA3NMKwNTMnMDguOSJF!5e0!3m2!1sen!2sin!4v1695897600000!5m2!1sen!2sin"
+            allowfullscreen>
+      </iframe>
+    </div>
 
     <div class="sos-container">
-      <button class="sos-btn quick" onclick="quickAlert()"><i class="fa fa-bolt"></i></button>
-      <button class="sos-btn sos" onclick="sendSOS()">SOS</button>
+        <button class="sos-btn quick" onclick="quickAlert()"><i class="fa fa-bolt"></i></button>
+        <button class="sos-btn sos" onclick="sendSOS()">SOS</button>
     </div>
 
     <div class="menu">
-      <button onclick="aiRoutes()"><i class="fa fa-route"></i>AI Routes</button>
-      <button onclick="family()"><i class="fa fa-users"></i>Family</button>
-      <button onclick="voice()"><i class="fa fa-microphone"></i>Voice</button>
-      <button onclick="predict()"><i class="fa fa-chart-line"></i>Predict</button>
-      <button onclick="timer()"><i class="fa fa-clock"></i>Timer</button>
-      <button onclick="community()"><i class="fa fa-comments"></i>Community</button>
-      <button onclick="aiAssistant()"><i class="fa fa-robot"></i>AI Assistant</button>
+        <button onclick="aiRoutes()"><i class="fa fa-route"></i>AI Routes</button>
+        <button onclick="family()"><i class="fa fa-users"></i>Family</button>
+        <button onclick="voice()"><i class="fa fa-microphone"></i>Voice</button>
+        <button onclick="predict()"><i class="fa fa-chart-line"></i>Predict</button>
+        <button onclick="timer()"><i class="fa fa-clock"></i>Timer</button>
+        <button onclick="community()"><i class="fa fa-comments"></i>Community</button>
+        <button onclick="aiAssistant()"><i class="fa fa-robot"></i>AI Assistant</button>
     </div>
 
-  
 
-<script>
-let map, directionsService, directionsRenderer, userLocation;
 
-function initMap() {
-  map = new google.maps.Map(document.getElementById("map"), {
-    zoom: 15,
-    center: {lat: 0, lng: 0},
-  });
-  directionsService = new google.maps.DirectionsService();
-  directionsRenderer = new google.maps.DirectionsRenderer({
-    map: map,
-    suppressMarkers: false,
-    polylineOptions:{strokeColor:'#2196f3'}
-  });
+    <script>
+        function setDestination() {
+            const dest = document.getElementById("destination").value.trim();
+            if (!dest) return;
 
-  if (navigator.geolocation) {
-    navigator.geolocation.getCurrentPosition((position) => {
-      userLocation = {
-        lat: position.coords.latitude,
-        lng: position.coords.longitude
-      };
-      map.setCenter(userLocation);
-      new google.maps.Marker({position: userLocation, map: map, title:"You are here"});
-    }, () => { alert("Unable to access location."); });
-  } else {
-    alert("Geolocation not supported.");
-  }
-}
+            // For now, just log the destination. Integrate with actual routing logic later.
+            console.log("Destination set to:", dest);
+            alert("Destination set to: " + dest);
+        }
 
-function setDestination() {
-  const dest = document.getElementById("destination").value.trim();
-  if (!dest || !userLocation) return;
+        function aiRoutes() {
+            window.location.href = "route_option.html"
+        }
 
-  directionsService.route({
-    origin: userLocation,
-    destination: dest,
-    travelMode: 'DRIVING',
-    provideRouteAlternatives: true
-  }, (result, status) => {
-    if (status === 'OK') {
-      directionsRenderer.setDirections(result);
-      console.log("Available routes:", result.routes.length);
-      result.routes.forEach((route, i) => {
-        console.log(`Route ${i+1}: Distance ${route.legs[0].distance.text}, Duration ${route.legs[0].duration.text}`);
-      });
-    } else {
-      alert("Directions request failed due to " + status);
-    }
-  });
-}
+        function family() {
+            window.location.href = "family.html"
+        }
 
-function aiRoutes() { 
-  window.location.href = "route_option.html"
- }
-function family() {
-  window.location.href = "family.html"
- }
-function voice() { 
-   window.location.href = "voice_command.html"
- }
-function predict() { 
-     window.location.href = "predict.html"
-}
-function timer() { 
-     window.location.href = "timer.html"
- }
-function community() {
-   window.location.href = "community.html"
- }
-function aiAssistant() { alert("AI Assistant here to help!"); }
-function sendSOS() {
-     window.location.href = "sos.html"
- }
-function quickAlert() {
-     window.location.href = "panic.html"
-  }
+        function voice() {
+            window.location.href = "voice_command.html"
+        }
 
-window.onload = initMap;
-</script>
+        function predict() {
+            window.location.href = "predict.html"
+        }
+
+        function timer() {
+            window.location.href = "timer.html"
+        }
+
+        function community() {
+            window.location.href = "community.html"
+        }
+
+        function aiAssistant() {
+            alert("AI Assistant here to help!");
+        }
+
+        function sendSOS() {
+            window.location.href = "sos.html"
+        }
+
+        function quickAlert() {
+            window.location.href = "panic.html"
+        }
+    </script>
 
 </body>
+
 </html>
