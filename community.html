@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Community Feed</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap');
+
+  /* Reset */
+  *, *::before, *::after {
+    box-sizing: border-box;
+  }
+  body, html {
+    margin: 0; padding: 0;
+    height: 100%;
+    background: #f7f9fb;
+    font-family: 'Inter', sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  .container {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    background: white;
+  }
+
+  /* Header */
+  header {
+    background-color: #1571ff;
+    color: white;
+    font-weight: 600;
+    font-size: 18px;
+    height: 56px;
+    display: flex;
+    align-items: center;
+    padding: 0 20px;
+    position: relative;
+    user-select: none;
+  }
+
+  /* Back arrow left */
+  header .back-btn {
+    position: absolute;
+    left: 20px;
+    width: 24px;
+    height: 24px;
+    cursor: pointer;
+    stroke: white;
+    stroke-width: 2.2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    fill: none;
+    user-select: none;
+  }
+
+  /* Title center */
+  header .title {
+    flex: 1;
+    text-align: center;
+    pointer-events: none;
+  }
+
+
+  /* Feed scroll area */
+  .feed {
+    flex: 1;
+    overflow-y: auto;
+    padding: 16px 20px 120px; /* extra bottom padding for buttons */
+  }
+
+  /* Card */
+  .feed-card {
+    background: white;
+    border-radius: 16px;
+    padding: 16px 20px 20px;
+    margin-bottom: 18px;
+    display: flex;
+    gap: 16px;
+    box-shadow: 0 3px 9px rgb(21 113 255 / 0.08);
+  }
+
+  /* User avatar circle */
+  .user-icon {
+    flex-shrink: 0;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    font-weight: 700;
+    font-size: 16px;
+    color: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    user-select: none;
+  }
+  .user-icon.sm {
+    background: #4b92f7;
+  }
+  .user-icon.jl {
+    background: #4a90e2;
+  }
+  .user-icon.ca {
+    background: #4a92f7;
+  }
+
+  /* Content area */
+  .content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .header-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .username {
+    font-weight: 600;
+    font-size: 15px;
+    color: #222222;
+  }
+
+  .badge {
+    font-size: 11px;
+    font-weight: 700;
+    border-radius: 9999px;
+    padding: 3px 10px;
+    user-select: none;
+  }
+  .badge.helpful {
+    background: #daf4cb;
+    color: #2b6e13;
+  }
+  .badge.alert {
+    background: #f4d2a8;
+    color: #8a4f00;
+  }
+
+  .timestamp {
+    font-size: 12px;
+    color: #8b8b8b;
+    margin-top: 2px;
+    margin-bottom: 8px;
+  }
+
+  .message {
+    font-size: 14px;
+    color: #333;
+    line-height: 1.3;
+    margin-bottom: 12px;
+  }
+
+  .location {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: #9b9b9b;
+    font-size: 13px;
+    margin-bottom: 14px;
+  }
+  .location svg {
+    width: 14px;
+    height: 14px;
+    fill: currentColor;
+    flex-shrink: 0;
+  }
+
+  /* Interactions */
+  .interactions {
+    display: flex;
+    gap: 28px;
+    font-size: 14px;
+    color: #777;
+    user-select: none;
+  }
+  .interactions > div {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+  }
+  .interactions svg {
+    width: 18px;
+    height: 18px;
+    fill: #777;
+    flex-shrink: 0;
+  }
+  .interactions > div:hover {
+    color: #1571ff;
+  }
+  .interactions > div:hover svg {
+    fill: #1571ff;
+  }
+
+  /* Floating Add Community button bottom left */
+  .floating-add {
+    position: fixed;
+    bottom: 90px;
+    left: 20px;
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    background-color: #18c169;
+    color: white;
+    font-weight: 700;
+    font-size: 38px;
+    line-height: 1;
+    box-shadow: 0 4px 15px rgba(0, 102, 255, 0.4);
+    border: none;
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    user-select: none;
+    transition: background-color 0.3s ease;
+    z-index: 101;
+  }
+  .floating-add:hover {
+    background-color: #0d52cc;
+  }
+
+  /* Footer sticky with buttons */
+  .footer {
+    position: sticky;
+    bottom: 0;
+    background: white;
+    display: flex;
+    gap: 12px;
+    padding: 16px 20px;
+    border-top: 1px solid #e3e3e3;
+    user-select: none;
+  }
+  .btn {
+    flex: 1;
+    font-weight: 600;
+    font-size: 16px;
+    padding: 14px 0;
+    border-radius: 14px;
+    cursor: pointer;
+    border: none;
+    transition: background-color 0.3s ease;
+  }
+  .share-btn {
+    background-color: #1571ff;
+    color: white;
+  }
+  .share-btn:hover {
+    background-color: #0d52cc;
+  }
+  .viewall-btn {
+    background-color: white;
+    color: #1571ff;
+    border: 2px solid #1571ff;
+  }
+  .viewall-btn:hover {
+    background-color: #e7f0ff;
+  }
+
+  /* Scrollbar */
+  .feed::-webkit-scrollbar {
+    width: 6px;
+  }
+  .feed::-webkit-scrollbar-thumb {
+    background-color: #c2c2c2;
+    border-radius: 3px;
+  }
+</style>
+</head>
+<body>
+  <div class="container" role="main" aria-label="Community Feed">
+    <header>
+     <span class="back-arrow" onclick="window.location.href='safe2.html'">&#8592;</span>
+      <div class="title" aria-live="polite">Community Feed</div>
+    </header>
+
+    <section class="feed" tabindex="0" aria-live="polite" aria-atomic="true">
+      <article class="feed-card" role="article" aria-label="Post by Rohit Koli. marked helpful">
+        <div class="user-icon sm" aria-hidden="true">SM</div>
+        <div class="content">
+          <div class="header-row">
+            <div class="username">Rohit Koli.</div>
+            <div class="badge helpful" aria-label="Helpful badge">Helpful</div>
+          </div>
+          <div class="timestamp">2 hours ago</div>
+          <div class="message">
+            Main Street was well-lit and safe around 8 PM. Good foot traffic.
+          </div>
+          <div class="location">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+              <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zM12 11.5c-1.38 0-2.5-1.12-2.5-2.5S10.62 6.5 12 6.5s2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z" fill="currentColor"/>
+            </svg>
+            Main Street
+          </div>
+          <div class="interactions">
+            <div class="like" tabindex="0" role="button" aria-label="Like Rohit Koli.'s post">
+              <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" fill="currentColor"/>
+              </svg>
+              80
+            </div>
+            <div class="reply" tabindex="0" role="button" aria-label="Reply to Rohit Koli.'s post">
+              <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                <path d="M10 9V5l-7 7 7 7v-4.1c4.55 0 7.72 1.79 9 5.1-1-5-4-10-9-10z" fill="currentColor"/>
+              </svg>
+              Reply
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <article class="feed-card" role="article" aria-label="Post by Sahil Chaudhari marked alert">
+        <div class="user-icon jl" aria-hidden="true">JL</div>
+        <div class="content">
+          <div class="header-row">
+            <div class="username">Sahil Chaudhari</div>
+            <div class="badge alert" aria-label="Alert badge">Alert</div>
+          </div>
+          <div class="timestamp">4 hours ago</div>
+          <div class="message">
+            Saw suspicious activity near Industrial Road late at night.
+          </div>
+          <div class="location">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+              <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zM12 11.5c-1.38 0-2.5-1.12-2.5-2.5S10.62 6.5 12 6.5s2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z" fill="currentColor"/>
+            </svg>
+            Industrial Road
+          </div>
+          <div class="interactions">
+            <div class="like" tabindex="0" role="button" aria-label="Like sahil chaudhari's post">
+              <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" fill="currentColor"/>
+              </svg>
+              8
+            </div>
+            <div class="reply" tabindex="0" role="button" aria-label="Reply to Sahil Chaudhari's post">
+              <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                <path d="M10 9V5l-7 7 7 7v-4.1c4.55 0 7.72 1.79 9 5.1-1-5-4-10-9-10z" fill="currentColor"/>
+              </svg>
+              Reply
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <article class="feed-card" role="article" aria-label="Post by Kunal Nikam marked helpful">
+        <div class="user-icon ca" aria-hidden="true">CA</div>
+        <div class="content">
+          <div class="header-row">
+            <div class="username">Kunal Nikam</div>
+            <div class="badge helpful" aria-label="Helpful badge">Helpful</div>
+          </div>
+          <div class="timestamp">6 hours ago</div>
+          <div class="message">
+            Police presence increased on Central Avenue this week. Area is safer now.
+          </div>
+          <div class="location">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+              <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zM12 11.5c-1.38 0-2.5-1.12-2.5-2.5S10.62 6.5 12 6.5s2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z" fill="currentColor"/>
+            </svg>
+            Central Avenue
+          </div>
+          <div class="interactions">
+            <div class="like" tabindex="0" role="button" aria-label="Like Kunal Nikam's post">
+              <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" fill="currentColor"/>
+              </svg>
+              15
+            </div>
+            <div class="reply" tabindex="0" role="button" aria-label="Reply to Kunal Nikam's post">
+              <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                <path d="M10 9V5l-7 7 7 7v-4.1c4.55 0 7.72 1.79 9 5.1-1-5-4-10-9-10z" fill="currentColor"/>
+              </svg>
+              Reply
+            </div>
+          </div>
+        </div>
+      </article>
+    </section>
+
+    <footer class="footer" role="contentinfo">
+ 
+      <button class="btn viewall-btn" aria-label="View all posts" onclick="window.location.href='form.html'">
+  + Share Update
+</button>
+
+    </footer>
+  </div>
+
+  <!-- Floating Add Community button bottom-left -->
+  <button class="floating-add" aria-label="Add Community" onclick="window.location.href='new_community.html'">+</button>
+</body>
+</html>
