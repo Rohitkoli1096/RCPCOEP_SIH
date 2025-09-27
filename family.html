@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Family Safety Circle</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap');
+
+    *, *::before, *::after {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: 'Inter', sans-serif;
+      background-color: #f5f7fb;
+      color: #1f2937;
+      padding: 24px 16px 80px;
+      user-select: none;
+      scroll-behavior: smooth;
+      max-width: 100vw;
+      overflow-x: hidden;
+    }
+
+    #scroll-progress {
+      position: fixed;
+      top: 0;
+      left: 0;
+      height: 4px;
+      background-color: #22c55e;
+      width: 0%;
+      z-index: 9999;
+      transition: width 0.25s ease-out;
+    }
+
+    header {
+      background-color: #22c55e;
+      color: white;
+      font-weight: 600;
+      font-size: 18px;
+      padding: 14px 16px;
+      border-radius: 8px;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      box-shadow: 0 1px 3px rgb(0 0 0 / 0.1);
+      user-select: none;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    header.scrolled {
+      box-shadow: 0 4px 10px rgb(0 0 0 / 0.25);
+    }
+
+    #back-button {
+      background: transparent;
+      border: none;
+      font-size: 22px;
+      color: white;
+      cursor: pointer;
+      padding: 0;
+      margin: 0;
+      line-height: 1;
+      font-weight: bold;
+      user-select: none;
+    }
+
+    #back-button:hover {
+      opacity: 0.85;
+    }
+
+    .circle-status {
+      background: white;
+      border-radius: 16px;
+      padding: 18px 24px;
+      margin: 20px 0 28px;
+      box-shadow: 0 1px 3px rgb(0 0 0 / 0.05);
+    }
+
+    .circle-status-stats {
+      display: flex;
+      justify-content: space-around;
+      font-weight: 600;
+      font-size: 14px;
+      color: #6b7280;
+    }
+
+    .circle-status-stats > div {
+      text-align: center;
+      flex: 1;
+    }
+
+    .circle-status-stats h3 {
+      font-size: 24px;
+      margin-bottom: 4px;
+    }
+
+    .safe h3 {
+      color: #22c55e;
+    }
+
+    .offline h3 {
+      color: #f97316;
+    }
+
+    .alert h3 {
+      color: #3b82f6;
+    }
+
+    .member {
+      background: white;
+      border-radius: 16px;
+      padding: 16px 20px;
+      margin-bottom: 16px;
+      box-shadow: 0 1px 3px rgb(0 0 0 / 0.05);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      opacity: 0;
+      transform: translateY(20px);
+      transition: opacity 0.6s ease, transform 0.6s ease;
+      scroll-snap-align: start;
+    }
+
+    .member.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .member-left {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      flex: 1;
+      min-width: 0;
+    }
+
+    .member-avatar {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      background: #3b82f6;
+      color: white;
+      font-weight: 700;
+      font-size: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .member-info {
+      display: flex;
+      flex-direction: column;
+      font-size: 14px;
+      color: #4b5563;
+      overflow: hidden;
+    }
+
+    .member-info strong {
+      font-weight: 600;
+      color: #111827;
+      font-size: 16px;
+      margin-bottom: 4px;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+      overflow: hidden;
+    }
+
+    .member-info span {
+      line-height: 1.3;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+      overflow: hidden;
+      margin-bottom: 2px;
+    }
+
+    .member-status {
+      font-weight: 600;
+      font-size: 13px;
+      padding: 6px 14px;
+      border-radius: 12px;
+      min-width: 72px;
+      text-align: center;
+      text-transform: lowercase;
+    }
+
+    .safe {
+      background: #d1fae5;
+      color: #22c55e;
+    }
+
+    .moving {
+      background: #fed7aa;
+      color: #ea580c;
+    }
+
+    .offline {
+      background: #e5e7eb;
+      color: #6b7280;
+    }
+
+    .member-actions {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-left: 20px;
+      flex-shrink: 0;
+    }
+
+    .btn-circle {
+      width: 38px;
+      height: 38px;
+      background: white;
+      border: 1px solid #d1d5db;
+      border-radius: 8px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      cursor: pointer;
+      color: #374151;
+      transition: background-color 0.15s ease, color 0.15s ease;
+    }
+
+    .btn-circle:hover {
+      background-color: #e0e7ff;
+      color: #4338ca;
+    }
+
+    .btn-circle:active {
+      background-color: #c7d2fe;
+    }
+
+    .btn-circle svg {
+      stroke: currentColor;
+    }
+
+    main {
+      scroll-snap-type: y mandatory;
+      overflow-y: auto;
+      max-height: calc(100vh - 112px);
+      width: 100%;
+      padding-right: 16px;
+    }
+
+    .bottom-actions {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      width: 100vw;
+      background: white;
+      padding: 12px 16px 20px;
+      box-shadow: 0 -2px 8px rgb(0 0 0 / 0.1);
+      border-top-left-radius: 16px;
+      border-top-right-radius: 16px;
+      z-index: 20;
+    }
+
+    .btn-invite {
+      background-color: #22c55e;
+      border: none;
+      color: white;
+      font-weight: 600;
+      font-size: 15px;
+      padding: 14px;
+      border-radius: 12px;
+      cursor: pointer;
+      width: 100%;
+      margin-bottom: 12px;
+      transition: background-color 0.2s ease;
+    }
+
+    .btn-invite:hover {
+      background-color: #16a34a;
+    }
+
+    .btn-bottom-group {
+      display: flex;
+      gap: 12px;
+    }
+
+    .btn-settings,
+    .btn-alerts {
+      flex: 1;
+      border-radius: 12px;
+      border: 1px solid #d1d5db;
+      font-weight: 600;
+      font-size: 14px;
+      cursor: pointer;
+      background: white;
+      color: #374151;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 6px;
+      padding: 10px 0;
+      transition: background-color 0.2s ease, border-color 0.2s ease;
+    }
+
+    .btn-settings:hover,
+    .btn-alerts:hover {
+      background-color: #e0e7ff;
+      border-color: #4338ca;
+      color: #4338ca;
+    }
+
+    .btn-settings span,
+    .btn-alerts span {
+      font-size: 18px;
+    }
+  </style>
+</head>
+<body>
+
+  <div id="scroll-progress"></div>
+
+  <header>
+    <button id="back-button" aria-label="Go Back" title="Go Back">←</button>
+    Family Safety Circle
+  </header>
+
+  <main>
+    <section class="circle-status" aria-label="Circle Status">
+      <div class="circle-status-stats">
+        <div class="safe"><h3>2</h3><p>Safe</p></div>
+        <div class="offline"><h3>1</h3><p>Offline</p></div>
+        <div class="alert"><h3>0</h3><p>Alerts</p></div>
+      </div>
+    </section>
+
+    <!-- Members -->
+    <article class="member">
+      <div class="member-left">
+        <div class="member-avatar">M</div>
+        <div class="member-info">
+          <strong>Mom</strong>
+          <span>Home</span>
+          <span>Last seen: 2 min ago</span>
+          <span>Battery: 92%</span>
+          <span>2.4 km away</span>
+        </div>
+      </div>
+      <span class="member-status safe">safe</span>
+      <div class="member-actions">
+        <button class="btn-circle" title="Show Mom on Map">📍</button>
+        <button class="btn-circle" title="Message Mom">💬</button>
+      </div>
+    </article>
+
+    <article class="member">
+      <div class="member-left">
+        <div class="member-avatar" style="background:#f43f5e;">S</div>
+        <div class="member-info">
+          <strong>Sarah</strong>
+          <span>Park</span>
+          <span>Last seen: 10 min ago</span>
+          <span>Battery: 74%</span>
+          <span>5.7 km away</span>
+        </div>
+      </div>
+      <span class="member-status moving">moving</span>
+      <div class="member-actions">
+        <button class="btn-circle" title="Show Sarah on Map">📍</button>
+        <button class="btn-circle" title="Message Sarah">💬</button>
+      </div>
+    </article>
+
+    <article class="member">
+      <div class="member-left">
+        <div class="member-avatar">D</div>
+        <div class="member-info">
+          <strong>Dad</strong>
+          <span>Office</span>
+          <span>Last seen: 15 min ago</span>
+          <span>Battery: 90%</span>
+          <span>8.9 km away</span>
+        </div>
+      </div>
+      <span class="member-status offline">offline</span>
+      <div class="member-actions">
+        <button class="btn-circle" title="Show Dad on Map">📍</button>
+        <button class="btn-circle" title="Message Dad">💬</button>
+      </div>
+    </article>
+  </main>
+
+  <div class="bottom-actions">
+    <button class="btn-invite">Invite Members</button>
+    <div class="btn-bottom-group">
+      <button class="btn-settings"><span>⚙️</span> Settings</button>
+      <button class="btn-alerts"><span>🔔</span> Alerts</button>
+    </div>
+  </div>
+
+  <script>
+    // Back button
+   document.getElementById('back-button').addEventListener('click', () => {
+    window.location.href = 'safe2.html'; // ✅ Redirect to safe2.html
+  });
+    // Scroll and animations
+    const progressBar = document.getElementById('scroll-progress');
+    const header = document.querySelector('header');
+    const main = document.querySelector('main');
+
+    main.addEventListener('scroll', () => {
+      const scrollTop = main.scrollTop;
+      const scrollHeight = main.scrollHeight - main.clientHeight;
+      const scrolledPercent = (scrollTop / scrollHeight) * 100;
+      progressBar.style.width = scrolledPercent + '%';
+
+      header.classList.toggle('scrolled', scrollTop > 5);
+
+      document.querySelectorAll('.member').forEach(member => {
+        const rect = member.getBoundingClientRect();
+        const mainRect = main.getBoundingClientRect();
+        if (rect.top >= mainRect.top && rect.top < mainRect.bottom - 40) {
+          member.classList.add('visible');
+        }
+      });
+    });
+
+    main.dispatchEvent(new Event('scroll'));
+
+    document.querySelectorAll('.btn-circle').forEach(btn => {
+      btn.addEventListener('click', () => {
+        alert(btn.title);
+      });
+    });
+
+    document.querySelector('.btn-invite').addEventListener('click', () => alert('Invite Members clicked'));
+    document.querySelector('.btn-settings').addEventListener('click', () => alert('Settings clicked'));
+    document.querySelector('.btn-alerts').addEventListener('click', () => alert('Alerts clicked'));
+  </script>
+</body>
+</html>
