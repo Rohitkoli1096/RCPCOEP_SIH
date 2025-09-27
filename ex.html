@@ -1,0 +1,242 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>Live Location + Route Demo</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <style>
+    html,body,#map { height:100%; margin:0; padding:0; }
+    .controls { position:absolute; top:10px; left:10px; z-index:1000; background:#fff; padding:8px; border-radius:6px; box-shadow:0 2px 6px rgba(0,0,0,0.2); }
+  </style>
+</head>
+<body>
+  <div id="map"></div>
+  <div class="controls">
+    <input id="destInput" placeholder="Search destination (lat,lng or address)" style="width:220px" />
+    <button id="goBtn">Go</button>
+    <div style="margin-top:6px;font-size:13px" id="status">Status: idle</div>
+  </div>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script>
+  // ---------- CONFIGURE ----------
+  const ROUTE_API_URL = 'https://your-route-api.example.com/route'; // <- replace with your API
+  const ROUTE_API_METHOD = 'POST'; // or 'GET' depending on your API
+  const ROUTE_API_AUTH_HEADER = { 'Authorization': 'Bearer YOUR_TOKEN_HERE' }; // set if needed
+  // Expected response: GeoJSON LineString or array of [lng,lat] pairs.
+  // --------------------------------
+
+  const map = L.map('map').setView([20.5937, 78.9629], 5); // center India as default
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    maxZoom: 19, attribution: '© OpenStreetMap'
+  }).addTo(map);
+
+  const statusEl = document.getElementById('status');
+  function setStatus(s){ statusEl.textContent = 'Status: ' + s; }
+
+  // Layers
+  let routeLayer = L.polyline([], { weight: 6 }).addTo(map);
+  let destMarker = null;
+  let liveMarker = L.marker([0,0], { title: 'You (live)' }).addTo(map);
+  let liveCircle = L.circle([0,0], { radius: 15 }).addTo(map);
+
+  // Live location
+  let watchId = null;
+  let currentPos = null;
+
+  function startWatch() {
+    if (!navigator.geolocation) {
+      setStatus('Geolocation not supported');
+      return;
+    }
+    watchId = navigator.geolocation.watchPosition(pos => {
+      currentPos = [pos.coords.latitude, pos.coords.longitude];
+      liveMarker.setLatLng(currentPos);
+      liveCircle.setLatLng(currentPos);
+      // Zoom to follow first fix
+      if (map.getZoom() < 12) map.setView(currentPos, 14);
+      setStatus('Live position updated');
+      // Optionally re-request route when user deviates by a threshold:
+      // You could compare distance to polyline and re-request if > X meters.
+    }, err => {
+      setStatus('Geolocation error: ' + err.message);
+    }, {
+      enableHighAccuracy: true,
+      maximumAge: 1000,
+      timeout: 10000
+    });
+  }
+
+  startWatch();
+
+  // Allow user to set destination by clicking:
+  map.on('click', e => {
+    setDestination([e.latlng.lat, e.latlng.lng]);
+  });
+
+  // Or via input (accept "lat,lng" or address — if address, you must geocode it.)
+  document.getElementById('goBtn').addEventListener('click', async () => {
+    const val = document.getElementById('destInput').value.trim();
+    if (!val) return;
+    if (val.includes(',')) {
+      const parts = val.split(',').map(s=>s.trim());
+      const lat = parseFloat(parts[0]), lng = parseFloat(parts[1]);
+      if (!isNaN(lat) && !isNaN(lng)) {
+        setDestination([lat, lng]);
+        return;
+      }
+    }
+    // If not lat,lng: optional simple geocode via Nominatim (open) to get coords
+    setStatus('Geocoding address...');
+    try {
+      const q = encodeURIComponent(val);
+      const r = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${q}`);
+      const results = await r.json();
+      if (results && results.length) {
+        const lat = parseFloat(results[0].lat), lng = parseFloat(results[0].lon);
+        setDestination([lat, lng]);
+      } else {
+        setStatus('Geocode: not found');
+      }
+    } catch (e) {
+      setStatus('Geocode error: ' + e.message);
+    }
+  });
+
+  async function setDestination(latlng) {
+    if (!latlng || latlng.length !== 2) return;
+    if (destMarker) map.removeLayer(destMarker);
+    destMarker = L.marker(latlng, { title: 'Destination' }).addTo(map);
+    map.fitBounds(L.latLngBounds([currentPos || latlng, latlng]), { padding: [50,50] });
+    setStatus('Requesting route...');
+    await requestRoute(currentPos, latlng);
+  }
+
+  async function requestRoute(origin, destination) {
+    if (!destination) {
+      setStatus('No destination set');
+      return;
+    }
+    // If origin isn't available yet, use same as destination (or return)
+    if (!origin) {
+      setStatus('Waiting for current position...');
+      return;
+    }
+
+    // Prepare payload - adapt to your API schema
+    const payload = {
+      origin: { lat: origin[0], lng: origin[1] },
+      destination: { lat: destination[0], lng: destination[1] },
+      // optional: profile: 'driving', alternatives: false, etc.
+    };
+
+    const fetchOptions = {
+      method: ROUTE_API_METHOD,
+      headers: {
+        'Content-Type': 'application/json',
+        ...ROUTE_API_AUTH_HEADER
+      },
+      body: (ROUTE_API_METHOD === 'POST') ? JSON.stringify(payload) : undefined
+    };
+
+    // If your API expects GET with query params, build URL accordingly
+    let url = ROUTE_API_URL;
+    if (ROUTE_API_METHOD === 'GET') {
+      const params = new URLSearchParams({
+        origin: `${origin[1]},${origin[0]}`, // lng,lat if that is needed
+        destination: `${destination[1]},${destination[0]}`
+      });
+      url = ROUTE_API_URL + '?' + params.toString();
+    }
+
+    try {
+      const resp = await fetch(url, fetchOptions);
+      if (!resp.ok) {
+        const text = await resp.text();
+        setStatus('Route API error: ' + resp.status + ' ' + text);
+        return;
+      }
+      const data = await resp.json();
+      // Try to normalize: accept GeoJSON LineString or coordinates array
+      let coords = [];
+
+      if (data.type === 'FeatureCollection' && data.features && data.features.length) {
+        // find LineString
+        const f = data.features.find(ff => ff.geometry && ff.geometry.type === 'LineString');
+        if (f) coords = f.geometry.coordinates;
+      } else if (data.type === 'Feature' && data.geometry && data.geometry.type === 'LineString') {
+        coords = data.geometry.coordinates;
+      } else if (data.geometry && data.geometry.type === 'LineString') {
+        coords = data.geometry.coordinates;
+      } else if (data.coordinates && Array.isArray(data.coordinates)) {
+        coords = data.coordinates; // maybe direct LineString coords
+      } else if (data.routes && data.routes[0] && data.routes[0].geometry) {
+        // e.g., Mapbox/OSRM polyline (might be encoded)
+        // If it's an encoded polyline string, decode (not implemented here)
+        // If it's coords array, use it:
+        if (Array.isArray(data.routes[0].geometry.coordinates)) {
+          coords = data.routes[0].geometry.coordinates;
+        }
+      } else if (Array.isArray(data)) {
+        coords = data; // maybe API returns raw array of [lng,lat] pairs
+      } else {
+        setStatus('Unknown route response format; check API docs');
+        console.log('Route API response', data);
+        return;
+      }
+
+      // Convert coords from [lng,lat] -> [lat,lng] for Leaflet if necessary
+      // We'll detect by checking numeric range (lng usually between -180 and 180)
+      const converted = coords.map(pt => {
+        // pt might be [lng, lat] or [lat, lng]; heuristic: if first number magnitude > 90 -> probably lng
+        const a = Number(pt[0]), b = Number(pt[1]);
+        if (Math.abs(a) > 90) return [b, a]; // was [lng,lat] -> convert to [lat,lng]
+        return [a, b]; // already [lat,lng]
+      });
+
+      // Draw polyline
+      routeLayer.setLatLngs(converted);
+      map.fitBounds(routeLayer.getBounds(), { padding: [60,60] });
+      setStatus('Route drawn, ' + converted.length + ' points');
+
+    } catch (err) {
+      console.error(err);
+      setStatus('Fetch error: ' + err.message);
+    }
+  }
+
+  // OPTIONAL: Recalculate route periodically or when user deviates
+  // Simple deviation check: distance from currentPos to nearest point on polyline > threshold
+  function distanceMeters(a, b) {
+    const R = 6371000;
+    const toRad = d => d * Math.PI/180;
+    const dLat = toRad(b[0]-a[0]), dLon = toRad(b[1]-a[1]);
+    const lat1 = toRad(a[0]), lat2 = toRad(b[0]);
+    const sinDlat = Math.sin(dLat/2), sinDlon = Math.sin(dLon/2);
+    const hav = sinDlat*sinDlat + Math.cos(lat1)*Math.cos(lat2)*sinDlon*sinDlon;
+    const c = 2*Math.atan2(Math.sqrt(hav), Math.sqrt(1-hav));
+    return R*c;
+  }
+
+  // Example: if user moves > 50m away from the route centerline, re-request route:
+  let lastReRoute = 0;
+  setInterval(() => {
+    if (!currentPos || !routeLayer || routeLayer.getLatLngs().length === 0) return;
+    const pts = routeLayer.getLatLngs().map(ll => [ll.lat, ll.lng]);
+    // compute min distance to polyline vertices (cheap approx)
+    let minD = Infinity;
+    for (const p of pts) {
+      const d = distanceMeters(currentPos, p);
+      if (d < minD) minD = d;
+    }
+    if (minD > 50 && Date.now() - lastReRoute > 15000) {
+      lastReRoute = Date.now();
+      setStatus('User deviated; recalculating route...');
+      if (destMarker) requestRoute(currentPos, [destMarker.getLatLng().lat, destMarker.getLatLng().lng]);
+    }
+  }, 4000);
+
+  </script>
+</body>
+</html>
