@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Panic Mode</title>
+<style>
+  /* Reset & base */
+  * {
+    margin: 0; padding: 0; box-sizing: border-box;
+  }
+  html, body {
+    height: 100%;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(145deg, #ff6f00, #ff3d00);
+    color: white;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    user-select: none;
+  }
+  body {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+  }
+  header {
+    padding: 18px 24px;
+    font-size: 20px;
+    font-weight: 600;
+    text-align: center;
+    border-bottom: 1px solid rgba(255 255 255 / 0.15);
+    letter-spacing: 0.03em;
+  }
+
+  main {
+    flex: 1;
+    padding: 40px 20px 30px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+
+  /* Panic Circle Button */
+  .circle {
+    position: relative;
+    width: 160px;
+    height: 160px;
+    border-radius: 50%;
+    background-color: #ffb347;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    font-size: 48px;
+    color: #6b2a00;
+    font-weight: 700;
+    box-shadow: 0 0 12px 3px rgba(255, 179, 71, 0.7);
+    transition: background-color 0.4s ease, transform 0.3s ease;
+    overflow: visible;
+  }
+  .circle:hover {
+    background-color: #ffad33;
+    transform: scale(1.1);
+  }
+  .circle.active {
+    background-color: #ff3d00;
+    color: #fff;
+    box-shadow:
+      0 0 10px 3px #ff5722,
+      0 0 25px 10px #ff3d00;
+  }
+  .circle:active {
+    transform: scale(0.95);
+  }
+
+  /* Rays effect */
+  .rays {
+    position: absolute;
+    top: 50%; left: 50%;
+    width: 260px;
+    height: 260px;
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+    border-radius: 50%;
+    box-shadow:
+      0 0 10px 4px #ffb347,
+      0 0 25px 12px #ffb347,
+      0 0 50px 25px #ff3d00;
+    animation: rays-pulse 2.5s ease-in-out infinite alternate;
+    opacity: 0.85;
+    z-index: -1;
+  }
+  @keyframes rays-pulse {
+    0% {
+      transform: translate(-50%, -50%) scale(0.85);
+      box-shadow:
+        0 0 10px 4px #ffb347,
+        0 0 25px 12px #ffb347,
+        0 0 50px 25px #ff3d00;
+      opacity: 0.7;
+    }
+    100% {
+      transform: translate(-50%, -50%) scale(1.5);
+      box-shadow:
+        0 0 30px 12px #ffb347,
+        0 0 60px 40px #ffb347,
+        0 0 110px 60px #ff3d00;
+      opacity: 0.3;
+    }
+  }
+
+  /* Heading & description */
+  h2 {
+    font-size: 24px;
+    font-weight: 700;
+    margin-top: 32px;
+    margin-bottom: 12px;
+    letter-spacing: 0.03em;
+  }
+  p.description {
+    font-size: 15px;
+    opacity: 0.85;
+    line-height: 1.4;
+    max-width: 280px;
+    margin: 0 auto 30px;
+  }
+
+  /* Buttons container */
+  .buttons {
+    width: 100%;
+    max-width: 400px;
+  }
+
+  button {
+    width: 100%;
+    padding: 14px;
+    margin: 10px 0;
+    border: none;
+    border-radius: 8px;
+    background-color: #ff6f00;
+    color: white;
+    font-weight: 700;
+    font-size: 17px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    box-shadow: 0 4px 10px rgba(255, 111, 0, 0.5);
+    transition: background-color 0.3s ease, box-shadow 0.3s ease;
+  }
+  button:hover:not(:disabled) {
+    background-color: #e64a19;
+    box-shadow: 0 6px 14px rgba(230, 74, 25, 0.7);
+  }
+  button:active:not(:disabled) {
+    background-color: #cc3b15;
+  }
+  button:disabled {
+    background-color: #ffa54f;
+    cursor: not-allowed;
+    box-shadow: none;
+  }
+
+  /* Icons in buttons */
+  .icon {
+    font-size: 20px;
+    user-select: none;
+  }
+
+  /* Status indicators */
+  .status {
+    margin-top: 36px;
+    font-size: 14px;
+    display: flex;
+    justify-content: center;
+    gap: 24px;
+    user-select: none;
+  }
+  .status span {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 700;
+    text-shadow: 0 0 4px rgba(0,0,0,0.3);
+  }
+  .status .gps::before,
+  .status .contacts::before {
+    content: '';
+    display: inline-block;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+  }
+  .status .gps::before {
+    background: #4caf50;
+    box-shadow: 0 0 8px #4caf50;
+  }
+  .status .contacts::before {
+    background: #2196f3;
+    box-shadow: 0 0 8px #2196f3;
+  }
+
+  /* Responsive */
+  @media (max-width: 480px) {
+    .circle {
+      width: 130px;
+      height: 130px;
+      font-size: 38px;
+    }
+    h2 {
+      font-size: 20px;
+    }
+    .buttons {
+      max-width: 320px;
+    }
+  }
+</style>
+</head>
+<body>
+  <header>   
+     <span class="back-arrow" onclick="window.location.href='safe2.html'">&#8592;</span> Panic Mode
+  </header>
+
+  <main>
+    <div
+      class="circle"
+      id="panicBtn"
+      role="button"
+      aria-pressed="false"
+      tabindex="0"
+      aria-label="Discrete Panic Button"
+      title="Tap to secretly alert emergency contacts"
+      >
+      ⚡
+    </div>
+    <h2>Discrete Panic Button</h2>
+    <p class="description">
+      Tap to secretly alert emergency contacts without triggering obvious alarms
+    </p>
+
+    <div class="buttons">
+      <button id="photoBtn" aria-label="Take Secret Photo">
+        <span class="icon" aria-hidden="true">📷</span>Secret Photo
+      </button>
+      <button id="videoBtn" aria-label="Record Secret Video">
+        <span class="icon" aria-hidden="true">📹</span>Secret Video
+      </button>
+      <button id="locationBtn" aria-label="Send Location Updates">
+        <span class="icon" aria-hidden="true">💬</span>Send Location Updates
+      </button>
+      <button id="callBtn" aria-label="Auto-Call Emergency Services in 5 seconds">
+        <span class="icon" aria-hidden="true">📞</span>
+        Auto-Call Emergency Services (<span id="countdown">30</span>s)
+      </button>
+    </div>
+
+    <div class="status" aria-live="polite" aria-atomic="true">
+      <span class="gps" id="gpsStatus">GPS Active</span>
+      <span class="contacts" id="contactsStatus">Contacts Notified</span>
+    </div>
+  </main>
+
+<script>
+  const panicBtn = document.getElementById('panicBtn');
+  let raysActive = false;
+  let raysElement = null;
+
+  // Countdown timer for Auto-Call Emergency Services
+  let countdownInterval = null;
+  let countdownTime = 5;
+  const countdownSpan = document.getElementById('countdown');
+  const callBtn = document.getElementById('callBtn');
+
+  // Utility function to create and append rays
+  function createRays() {
+    const div = document.createElement('div');
+    div.className = 'rays';
+    return div;
+  }
+
+  function togglePanicRays() {
+    raysActive = !raysActive;
+
+    if (raysActive) {
+      panicBtn.classList.add('active');
+      panicBtn.setAttribute('aria-pressed', 'true');
+
+      raysElement = createRays();
+      panicBtn.appendChild(raysElement);
+
+      showAlert("Panic Mode Activated!");
+
+      // Simulate notifying contacts (for demo)
+      updateStatus(true);
+
+    } else {
+      panicBtn.classList.remove('active');
+      panicBtn.setAttribute('aria-pressed', 'false');
+
+      if (raysElement) {
+        raysElement.remove();
+        raysElement = null;
+      }
+
+      showAlert("Panic Mode Deactivated!");
+      updateStatus(false);
+    }
+  }
+
+  panicBtn.addEventListener('click', togglePanicRays);
+  panicBtn.addEventListener('keydown', e => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      togglePanicRays();
+    }
+  });
+
+  // Button actions with simple feedback
+  document.getElementById('photoBtn').addEventListener('click', () => {
+    showAlert("📷 Secret Photo Taken!");
+  });
+  document.getElementById('videoBtn').addEventListener('click', () => {
+    showAlert("📹 Secret Video Recording Started!");
+  });
+  document.getElementById('locationBtn').addEventListener('click', () => {
+    showAlert("💬 Sending Location Updates...");
+  });
+
+  callBtn.addEventListener('click', () => {
+    if (countdownInterval) return; // Already counting down
+
+    showAlert("📞 Calling Emergency Services in 5 seconds...");
+
+    callBtn.disabled = true;
+    countdownTime = 5;
+    countdownSpan.textContent = countdownTime;
+
+    countdownInterval = setInterval(() => {
+      countdownTime--;
+      countdownSpan.textContent = countdownTime;
+      if (countdownTime <= 0) {
+        clearInterval(countdownInterval);
+        countdownInterval = null;
+        callBtn.disabled = false;
+        showAlert("📞 Emergency Services Called!");
+      }
+    }, 1000);
+  });
+
+  // Show alert message (temporary toast)
+  let alertTimeout;
+  function showAlert(message) {
+    clearTimeout(alertTimeout);
+
+    let alertBox = document.getElementById('alertBox');
+    if (!alertBox) {
+      alertBox = document.createElement('div');
+      alertBox.id = 'alertBox';
+      alertBox.style = `
+        position: fixed;
+        bottom: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: rgba(0,0,0,0.7);
+        color: #fff;
+        padding: 12px 24px;
+        border-radius: 30px;
+        font-weight: 600;
+        font-size: 14px;
+        box-shadow: 0 0 15px rgba(255, 69, 0, 0.7);
+        z-index: 9999;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+        user-select: none;
+      `;
+      document.body.appendChild(alertBox);
+    }
+    alertBox.textContent = message;
+    alertBox.style.opacity = '1';
+
+    alertTimeout = setTimeout(() => {
+      alertBox.style.opacity = '0';
+    }, 2500);
+  }
+
+  // Update status indicators based on panic state
+  function updateStatus(active) {
+    const gpsStatus = document.getElementById('gpsStatus');
+    const contactsStatus = document.getElementById('contactsStatus');
+
+    if (active) {
+      gpsStatus.textContent = 'GPS Active';
+      contactsStatus.textContent = 'Contacts Notified';
+      gpsStatus.style.color = '#4caf50';
+      contactsStatus.style.color = '#2196f3';
+    } else {
+      gpsStatus.textContent = 'GPS Inactive';
+      contactsStatus.textContent = 'Contacts Not Notified';
+      gpsStatus.style.color = '#999';
+      contactsStatus.style.color = '#999';
+    }
+  }
+
+  // Initialize with status inactive
+  updateStatus(false);
+</script>
+</body>
+</html>
