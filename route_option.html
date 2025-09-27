@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Route Options</title>
+<style>
+  /* Reset & base */
+  body, html {
+    margin: 0; padding: 0;
+    font-family: Arial, sans-serif;
+    background: #fff;
+    color: #000;
+    height: 100vh;
+  }
+  /* Header */
+  header {
+    background-color: #1e88e5;
+    color: white;
+    font-weight: 600;
+    font-size: 18px;
+    text-align: center;
+    padding: 12px 0;
+    position: relative;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  }
+  .back-arrow, .menu-icon {
+    position: absolute;
+    top: 12px;
+    font-size: 20px;
+    cursor: pointer;
+    user-select: none;
+  }
+  .back-arrow {
+    left: 15px;
+  }
+  .menu-icon {
+    right: 15px;
+  }
+  /* Container */
+  .container {
+    max-width: 480px;
+    margin: 20px auto;
+    padding: 0 15px 40px;
+  }
+  /* Route card base */
+  .route-card {
+    border-radius: 12px;
+    padding: 15px 20px;
+    margin-bottom: 20px;
+    box-sizing: border-box;
+    box-shadow: 0 1px 3px rgb(0 0 0 / 0.1);
+  }
+  /* Route A - Safe */
+  .route-a {
+    border: 1.5px solid #43a047;
+    color: #2e7d32;
+  }
+  .route-a .title {
+    font-weight: 600;
+    font-size: 18px;
+    margin-bottom: 2px;
+  }
+  .route-a .subtitle {
+    font-size: 14px;
+    color: #4caf50;
+    margin-bottom: 10px;
+  }
+  .route-a .badge {
+    display: inline-block;
+    background: #c8e6c9;
+    color: #2e7d32;
+    font-weight: 600;
+    font-size: 12px;
+    padding: 3px 10px;
+    border-radius: 12px;
+    float: right;
+    margin-top: -24px;
+  }
+  .route-a .info-line {
+    font-size: 14px;
+    margin-bottom: 14px;
+  }
+  .route-a .info-line span {
+    font-weight: 600;
+  }
+  .route-a .safety-note {
+    color: #2e7d32;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 12px;
+  }
+  .route-a .safety-note svg {
+    fill: #2e7d32;
+    width: 18px;
+    height: 18px;
+  }
+  .route-a button {
+    width: 100%;
+    background-color: #2e7d32;
+    color: white;
+    border: none;
+    padding: 12px 0;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 16px;
+    cursor: pointer;
+  }
+  .route-a button:hover {
+    background-color: #1b4d23;
+  }
+  /* Route B - Risky */
+  .route-b {
+    border: 1.5px solid #e53935;
+    color: #c62828;
+  }
+  .route-b .title {
+    font-weight: 600;
+    font-size: 18px;
+    margin-bottom: 2px;
+  }
+  .route-b .subtitle {
+    font-size: 14px;
+    color: #e53935;
+    margin-bottom: 10px;
+  }
+  .route-b .badge {
+    display: inline-block;
+    background: #ffcdd2;
+    color: #c62828;
+    font-weight: 600;
+    font-size: 12px;
+    padding: 3px 10px;
+    border-radius: 12px;
+    float: right;
+    margin-top: -24px;
+  }
+  .route-b .info-line {
+    font-size: 14px;
+    margin-bottom: 14px;
+  }
+  .route-b .info-line span {
+    font-weight: 600;
+  }
+  .route-b .warning-note {
+    color: #c62828;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 12px;
+  }
+  .route-b .warning-note svg {
+    fill: #c62828;
+    width: 18px;
+    height: 18px;
+  }
+  .route-b button {
+    width: 100%;
+    background: none;
+    color: #c62828;
+    border: 1.5px solid #c62828;
+    padding: 12px 0;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 16px;
+    cursor: pointer;
+  }
+  .route-b button:hover {
+    background-color: #ffcdd2;
+  }
+  /* Community Insights */
+  .community-insights {
+    border-radius: 12px;
+    background: #e3f2fd;
+    padding: 15px 20px;
+    color: #1565c0;
+    font-size: 14px;
+  }
+  .community-insights p {
+    margin: 8px 0;
+  }
+  .community-insights strong {
+    font-weight: 600;
+  }
+  /* Icon text style */
+  .icon-text {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 14px;
+  }
+  .icon-text svg {
+    fill: #1565c0;
+    width: 18px;
+    height: 18px;
+  }
+  /* Clear floats */
+  .clearfix::after {
+    content: "";
+    display: table;
+    clear: both;
+  }
+</style>
+</head>
+<body>
+
+<header>
+ <span class="back-arrow" onclick="window.location.href='safe2.html'">&#8592;</span>
+  AI Route Options
+
+</header>
+
+<div class="container">
+  <!-- Route A -->
+  <div class="route-card route-a clearfix">
+    <div class="title">Route A - Recommended</div>
+    <div class="badge">Safe 7/10</div>
+    <div class="subtitle">Via Main Street &amp; Central Ave</div>
+    <div class="info-line">
+      <span>Distance:</span> 2.3 km
+      <span style="float:right;"><span>Time:</span> 8 min</span>
+    </div>
+    <div class="safety-note">
+      <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 1L3 5v6c0 5 3.6 9 9 9s9-4 9-9V5l-9-4zM8.7 15.1L5.5 12.2 6.9 10.8l1.8 1.9 5.9-6 1.4 1.3-7.3 7.7z"></path></svg>
+      Well-lit streets, high foot traffic
+    </div>
+   <button onclick="window.location.href='navigation.html'">Start Navigation</button>
+
+  </div>
+
+  <!-- Route B -->
+  <div class="route-card route-b clearfix">
+    <div class="title">Route B</div>
+    <div class="badge">Risky 3/10</div>
+    <div class="subtitle">Via Back Street &amp; Industrial Road</div>
+    <div class="info-line">
+      <span>Distance:</span> 1.8 km
+      <span style="float:right;"><span>Time:</span> 6 min</span>
+    </div>
+    <div class="warning-note">
+      <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z"></path></svg>
+      Poorly lit, isolated areas
+    </div>
+    <button>Use Anyway</button>
+  </div>
+
+  <!-- Community Insights -->
+  <div class="community-insights">
+    <div class="icon-text">
+      <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 12c2.7 0 5-2.3 5-5s-2.3-5-5-5-5 2.3-5 5 2.3 5 5 5zm0 2c-3.3 0-10 1.7-10 5v3h20v-3c0-3.3-6.7-5-10-5z"></path></svg>
+      3 users reported Route A as safe today
+    </div>
+    <div class="icon-text" style="margin-top: 6px;">
+      <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M21 6h-2v9H5v2h14v-3l3 3 2-2-4-4zM3 7v9h2V7H3zm4-3v1h10V4H7z"></path></svg>
+      "Well-lit and busy street" - Sarah M.
+    </div>
+  </div>
+</div>
+
+</body>
+</html>
