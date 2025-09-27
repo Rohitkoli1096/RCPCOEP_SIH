@@ -1,11 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
-   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <head>
   <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Advanced Voice Assistant</title>
   <style>
-    /* (Styles are unchanged from your original — same as before) */
     body {
       font-family: "Segoe UI", sans-serif;
       margin: 0;
@@ -13,19 +12,16 @@
       background: #f2f2f2;
       color: #333;
     }
-
     .container {
-      max-width: 450px;
+      max-width: 100%;
       margin: auto;
       background: #fff;
       border-radius: 10px;
       box-shadow: 0 0 10px rgba(0,0,0,0.1);
-      overflow: hidden;
       min-height: 100vh;
       display: flex;
       flex-direction: column;
     }
-
     .header {
       background-color: #9c27b0;
       color: #fff;
@@ -33,42 +29,35 @@
       display: flex;
       align-items: center;
     }
-
     .back-arrow {
       font-size: 22px;
       margin-right: 10px;
       cursor: pointer;
     }
-
     .title {
       font-size: 18px;
       font-weight: bold;
     }
-
     .content {
       padding: 16px;
       flex: 1;
     }
-
     .voice-assistant-block, .toggle-row {
       display: flex;
       justify-content: space-between;
       align-items: center;
       margin-bottom: 12px;
     }
-
     .toggle-switch {
       position: relative;
       width: 40px;
       height: 20px;
     }
-
     .toggle-switch input {
       opacity: 0;
       width: 0;
       height: 0;
     }
-
     .slider {
       position: absolute;
       top: 0; left: 0;
@@ -78,7 +67,6 @@
       cursor: pointer;
       transition: 0.4s;
     }
-
     .slider:before {
       content: "";
       position: absolute;
@@ -90,15 +78,12 @@
       border-radius: 50%;
       transition: 0.4s;
     }
-
     input:checked + .slider {
       background-color: #9c27b0;
     }
-
     input:checked + .slider:before {
       transform: translateX(20px);
     }
-
     .button {
       width: 100%;
       background: #9c27b0;
@@ -110,24 +95,20 @@
       margin-top: 12px;
       cursor: pointer;
     }
-
     .command-card {
       background: #f6f1fb;
       padding: 10px;
       border-radius: 10px;
       margin-bottom: 10px;
     }
-
     .command {
       font-weight: bold;
       color: #9c27b0;
     }
-
     .desc {
       font-size: 12px;
       color: #555;
     }
-
     .log {
       height: 100px;
       background: #f9f9f9;
@@ -138,7 +119,6 @@
       border: 1px solid #e0e0e0;
       margin-top: 12px;
     }
-
     iframe.map {
       width: 100%;
       height: 200px;
@@ -146,12 +126,10 @@
       margin-top: 12px;
       border-radius: 10px;
     }
-
     .footer {
       padding: 16px;
       text-align: center;
     }
-
     .settings-btn {
       background: white;
       color: #9c27b0;
@@ -161,15 +139,18 @@
       font-size: 14px;
       cursor: pointer;
     }
+    @media (max-width: 600px) {
+      .title { font-size: 16px; }
+      .button { font-size: 14px; padding: 10px; }
+      .settings-btn { font-size: 12px; padding: 8px 12px; }
+    }
   </style>
 </head>
 <body>
-
 <div class="header">
   <div class="back-arrow" onclick="goBack()">←</div>
   <div class="title">Voice Commands</div>
 </div>
-
 <div class="content">
   <div class="voice-assistant-block">
     <div>
@@ -181,193 +162,51 @@
       <span class="slider"></span>
     </label>
   </div>
-
-  <button class="button" onclick="toggleListening()">🎙️ Hold to Speak</button>
-
-  <div style="margin-top: 20px;">
-    <div class="command-card">
-      <div class="command">"Hey ARIA, find safe route home"</div>
-      <div class="desc">Navigate to safest route home</div>
-    </div>
-    <div class="command-card">
-      <div class="command">"Emergency help"</div>
-      <div class="desc">Trigger SOS alert</div>
-    </div>
-    <div class="command-card">
-      <div class="command">"Where is my family?"</div>
-      <div class="desc">Show family location on map</div>
-    </div>
-    <div class="command-card">
-      <div class="command">"Report unsafe area"</div>
-      <div class="desc">Open safety report dialog</div>
-    </div>
-    <div class="command-card">
-      <div class="command">"Call emergency contact"</div>
-      <div class="desc">Initiate emergency phone call</div>
-    </div>
-    <div class="command-card">
-      <div class="command">"Send my location"</div>
-      <div class="desc">Share your live location</div>
-    </div>
-    <div class="command-card">
-      <div class="command">"Battery status"</div>
-      <div class="desc">Check battery level</div>
-    </div>
-    <div class="command-card">
-      <div class="command">"Open map"</div>
-      <div class="desc">Display map of your area</div>
-    </div>
+  <button class="button" onclick="toggleListening()">🎙️ Tap to Speak</button>
+  <div id="commands">
+    <div class="command-card"><div class="command">"Hey ARIA, find safe route home"</div><div class="desc">Navigate safely</div></div>
+    <div class="command-card"><div class="command">"Emergency help"</div><div class="desc">Trigger SOS</div></div>
+    <div class="command-card"><div class="command">"Where is my family?"</div><div class="desc">Show family map</div></div>
   </div>
-
   <div class="toggle-row">
     <span>Wake word detection</span>
-    <label class="toggle-switch">
-      <input type="checkbox" id="wakeWordToggle" checked />
-      <span class="slider"></span>
-    </label>
+    <label class="toggle-switch"><input type="checkbox" id="wakeWordToggle" checked /><span class="slider"></span></label>
   </div>
-
   <div class="toggle-row">
     <span>Voice feedback</span>
-    <label class="toggle-switch">
-      <input type="checkbox" id="voiceFeedbackToggle" checked />
-      <span class="slider"></span>
-    </label>
+    <label class="toggle-switch"><input type="checkbox" id="voiceFeedbackToggle" checked /><span class="slider"></span></label>
   </div>
-
-  <div class="log" id="logBox">
-    <strong>Command Log:</strong><br />
-  </div>
-
-  <iframe
-    id="mapFrame"
-    class="map"
-    src=""
-    allowfullscreen
-    loading="lazy"
-    referrerpolicy="no-referrer-when-downgrade"
-  ></iframe>
-
-  <div class="footer">
-    <button class="settings-btn" onclick="openSettings()">⚙️ Voice Settings</button>
-  </div>
+  <div class="log" id="logBox"><strong>Command Log:</strong><br /></div>
+  <iframe id="mapFrame" class="map"></iframe>
+  <div class="footer"><button class="settings-btn" onclick="openSettings()">⚙️ Voice Settings</button></div>
 </div>
-
 <script>
   const statusEl = document.getElementById("status");
   const logBox = document.getElementById("logBox");
   const mapFrame = document.getElementById("mapFrame");
-
-  function log(msg) {
-    logBox.innerHTML += msg + "<br>";
-    logBox.scrollTop = logBox.scrollHeight;
-  }
-
-  function speak(text) {
-    if (!document.getElementById("voiceFeedbackToggle").checked) return;
-    const msg = new SpeechSynthesisUtterance(text);
-    window.speechSynthesis.speak(msg);
-  }
-
-  function goBack() {
-    window.location.href = "safe2.html";
-  }
-
-  function openSettings() {
-    alert("⚙️ Voice settings window (placeholder).");
-  }
-
-  document.querySelectorAll("input[type='checkbox']").forEach(cb => {
-    cb.addEventListener("change", () => {
-      localStorage.setItem(cb.id, cb.checked);
-    });
-    const saved = localStorage.getItem(cb.id);
-    if (saved !== null) cb.checked = saved === "true";
-  });
-
+  function log(msg) { logBox.innerHTML += msg + "<br>"; logBox.scrollTop = logBox.scrollHeight; }
+  function speak(text) { if (!document.getElementById("voiceFeedbackToggle").checked) return; const msg = new SpeechSynthesisUtterance(text); window.speechSynthesis.speak(msg); }
+  function goBack() { window.location.href = "safe2.html"; }
+  function openSettings() { alert("⚙️ Voice settings window."); }
   const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
   const recognition = SpeechRecognition ? new SpeechRecognition() : null;
-
   if (recognition) {
-    recognition.continuous = false;
-    recognition.lang = "en-US";
-    recognition.interimResults = false;
-
+    recognition.continuous = false; recognition.lang = "en-US"; recognition.interimResults = false;
     recognition.onstart = () => statusEl.textContent = "🎧 Listening...";
     recognition.onend = () => statusEl.textContent = "Ready to listen";
-
-    recognition.onresult = (event) => {
-      const spoken = event.results[0][0].transcript.toLowerCase();
-      log(`🎤 "${spoken}"`);
-      handleCommand(spoken);
-    };
+    recognition.onresult = (e) => { const spoken = e.results[0][0].transcript.toLowerCase(); log(`🎤 "${spoken}"`); handleCommand(spoken); };
   }
-
   function toggleListening() {
-    if (!document.getElementById("assistantToggle").checked) {
-      alert("Voice assistant is turned off.");
-      return;
-    }
-    if (!recognition) {
-      alert("Speech Recognition not supported.");
-      return;
-    }
+    if (!document.getElementById("assistantToggle").checked) { alert("Voice assistant off."); return; }
+    if (!recognition) { alert("Speech Recognition not supported."); return; }
     recognition.start();
   }
-
   function handleCommand(text) {
-    if (text.includes("safe route")) {
-      log("🧭 Navigating home safely.");
-      speak("Navigating to safe route home.");
-    } else if (text.includes("emergency") || text.includes("help") || text.includes("sos")) {
-      log("🚨 Emergency help sent.");
-      speak("Emergency help has been sent.");
-      setTimeout(() => window.location.href = "sos.html", 1500);
-    } else if (text.includes("family")) {
-      log("📍 Showing family location at Parola.");
-      mapFrame.src = "https://www.google.com/maps/embed/v1/place?key=YOUR_GOOGLE_MAPS_API_KEY&q=Parola,Maharashtra,India";
-      speak("Your family is located at Parola.");
-    } else if (text.includes("report")) {
-      log("📝 Opening unsafe area report...");
-      speak("Opening report page.");
-      setTimeout(() => window.location.href = "report.html", 1500);
-    } else if (text.includes("call emergency")) {
-      log("📞 Calling emergency contact...");
-      speak("Calling your emergency contact.");
-         window.location.href = "tel:+917020572471";
-    } else if (text.includes("send my location")) {
-      if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(pos => {
-          const { latitude, longitude } = pos.coords;
-          log(`📍 Latitude: ${latitude}, Longitude: ${longitude}`);
-          speak("Sending your current location.");
-        });
-      } else {
-        log("❌ Geolocation not supported.");
-        speak("Unable to access your location.");
-      }
-    } else if (text.includes("battery")) {
-      if (navigator.getBattery) {
-        navigator.getBattery().then(battery => {
-          const level = Math.round(battery.level * 100);
-          log(`🔋 Battery at ${level}%.`);
-          speak(`Your battery is at ${level} percent.`);
-        });
-      } else {
-        log("⚠️ Battery API not supported.");
-        speak("Battery status is not supported on your device.");
-      }
-    } else if (text.includes("open map")) {
-      log("🗺️ Opening map view.");
-      mapFrame.src = "https://www.google.com/maps/embed/v1/view?key=YOUR_GOOGLE_MAPS_API_KEY&center=20.932,74.525&zoom=14";
-      speak("Here's your current area on the map.");
-    } else {
-      log("❓ Command not recognized.");
-      speak("Sorry, I didn't understand that.");
-    }
+    if (text.includes("safe route")) { log("🧭 Navigating safely."); speak("Navigating safely."); }
+    else if (text.includes("emergency")) { log("🚨 Emergency help sent."); speak("Emergency help sent."); }
+    else if (text.includes("family")) { log("📍 Showing family location."); mapFrame.src="https://www.google.com/maps/embed/v1/place?key=YOUR_GOOGLE_MAPS_API_KEY&q=Parola,Maharashtra,India"; speak("Showing family location."); }
+    else { log("❓ Command not recognized."); speak("Sorry, I didn't understand."); }
   }
 </script>
-
 </body>
 </html>
-
