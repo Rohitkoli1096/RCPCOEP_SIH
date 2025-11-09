@@ -13,18 +13,6 @@
       color: #333;
     }
 
-    .container {
-      max-width: 450px;
-      margin: auto;
-      background: #fff;
-      border-radius: 10px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.1);
-      overflow: hidden;
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-    }
-
     .header {
       background-color: #9c27b0;
       color: #fff;
@@ -108,6 +96,7 @@
       font-size: 15px;
       margin-top: 12px;
       cursor: pointer;
+      touch-action: manipulation;
     }
 
     .command-card {
@@ -181,41 +170,17 @@
     </label>
   </div>
 
-  <button class="button" onclick="toggleListening()">🎙 Hold to Speak</button>
+  <button class="button" id="micButton">🎙 Hold to Speak</button>
 
   <div style="margin-top: 20px;">
-    <div class="command-card">
-      <div class="command">"Hey ARIA, find safe route home"</div>
-      <div class="desc">Navigate to safest route home</div>
-    </div>
-    <div class="command-card">
-      <div class="command">"Emergency help"</div>
-      <div class="desc">Trigger SOS alert</div>
-    </div>
-    <div class="command-card">
-      <div class="command">"Where is my family?"</div>
-      <div class="desc">Show family location on map</div>
-    </div>
-    <div class="command-card">
-      <div class="command">"Report unsafe area"</div>
-      <div class="desc">Open safety report dialog</div>
-    </div>
-    <div class="command-card">
-      <div class="command">"Call emergency contact"</div>
-      <div class="desc">Initiate emergency phone call</div>
-    </div>
-    <div class="command-card">
-      <div class="command">"Send my location"</div>
-      <div class="desc">Share your live location</div>
-    </div>
-    <div class="command-card">
-      <div class="command">"Battery status"</div>
-      <div class="desc">Check battery level</div>
-    </div>
-    <div class="command-card">
-      <div class="command">"Open map"</div>
-      <div class="desc">Display map of your area</div>
-    </div>
+    <div class="command-card"><div class="command">"Hey ARIA, find safe route home"</div><div class="desc">Navigate to safest route home</div></div>
+    <div class="command-card"><div class="command">"Emergency help"</div><div class="desc">Trigger SOS alert</div></div>
+    <div class="command-card"><div class="command">"Where is my family?"</div><div class="desc">Show family location on map</div></div>
+    <div class="command-card"><div class="command">"Report unsafe area"</div><div class="desc">Open safety report dialog</div></div>
+    <div class="command-card"><div class="command">"Call emergency contact"</div><div class="desc">Initiate emergency phone call</div></div>
+    <div class="command-card"><div class="command">"Send my location"</div><div class="desc">Share your live location</div></div>
+    <div class="command-card"><div class="command">"Battery status"</div><div class="desc">Check battery level</div></div>
+    <div class="command-card"><div class="command">"Open map"</div><div class="desc">Display map of your area</div></div>
   </div>
 
   <div class="toggle-row">
@@ -238,14 +203,7 @@
     <strong>Command Log:</strong><br />
   </div>
 
-  <iframe
-    id="mapFrame"
-    class="map"
-    src=""
-    allowfullscreen
-    loading="lazy"
-    referrerpolicy="no-referrer-when-downgrade"
-  ></iframe>
+  <iframe id="mapFrame" class="map" src="" allowfullscreen loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
 
   <div class="footer">
     <button class="settings-btn" onclick="openSettings()">⚙ Voice Settings</button>
@@ -256,6 +214,7 @@
   const statusEl = document.getElementById("status");
   const logBox = document.getElementById("logBox");
   const mapFrame = document.getElementById("mapFrame");
+  const micButton = document.getElementById("micButton");
 
   function log(msg) {
     logBox.innerHTML += msg + "<br>";
@@ -277,17 +236,17 @@
   }
 
   document.querySelectorAll("input[type='checkbox']").forEach(cb => {
-    cb.addEventListener("change", () => {
-      localStorage.setItem(cb.id, cb.checked);
-    });
+    cb.addEventListener("change", () => localStorage.setItem(cb.id, cb.checked));
     const saved = localStorage.getItem(cb.id);
     if (saved !== null) cb.checked = saved === "true";
   });
 
-  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-  const recognition = SpeechRecognition ? new SpeechRecognition() : null;
+  // ---- Speech Recognition Setup ----
+  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition || null;
+  let recognition;
 
-  if (recognition) {
+  if (SpeechRecognition) {
+    recognition = new SpeechRecognition();
     recognition.continuous = false;
     recognition.lang = "en-US";
     recognition.interimResults = false;
@@ -300,20 +259,33 @@
       log(`🎤 ${spoken}`);
       handleCommand(spoken);
     };
+  } else {
+    alert("❌ Speech recognition is not supported on this browser.");
   }
 
-  function toggleListening() {
-    if (!document.getElementById("assistantToggle").checked) {
-      alert("Voice assistant is turned off.");
+  // ---- Touch & Click Handling ----
+  micButton.addEventListener("mousedown", startListening);
+  micButton.addEventListener("mouseup", stopListening);
+  micButton.addEventListener("touchstart", startListening);
+  micButton.addEventListener("touchend", stopListening);
+
+  function startListening() {
+    if (!recognition) {
+      alert("Speech Recognition not supported on this device.");
       return;
     }
-    if (!recognition) {
-      alert("Speech Recognition not supported.");
+    if (!document.getElementById("assistantToggle").checked) {
+      alert("Voice assistant is turned off.");
       return;
     }
     recognition.start();
   }
 
+  function stopListening() {
+    if (recognition) recognition.stop();
+  }
+
+  // ---- Command Logic ----
   function handleCommand(text) {
     if (text.includes("safe route")) {
       log("🧭 Navigating home safely.");
