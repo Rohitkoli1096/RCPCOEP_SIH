@@ -2,10 +2,9 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Advanced Voice Assistant</title>
   <style>
-    /* (Styles are unchanged from your original — same as before) */
     body {
       font-family: "Segoe UI", sans-serif;
       margin: 0;
@@ -182,7 +181,7 @@
     </label>
   </div>
 
-  <button class="button" onclick="toggleListening()">🎙️ Hold to Speak</button>
+  <button class="button" onclick="toggleListening()">🎙 Hold to Speak</button>
 
   <div style="margin-top: 20px;">
     <div class="command-card">
@@ -249,7 +248,7 @@
   ></iframe>
 
   <div class="footer">
-    <button class="settings-btn" onclick="openSettings()">⚙️ Voice Settings</button>
+    <button class="settings-btn" onclick="openSettings()">⚙ Voice Settings</button>
   </div>
 </div>
 
@@ -274,7 +273,7 @@
   }
 
   function openSettings() {
-    alert("⚙️ Voice settings window (placeholder).");
+    alert("⚙ Voice settings window (placeholder).");
   }
 
   document.querySelectorAll("input[type='checkbox']").forEach(cb => {
@@ -298,7 +297,7 @@
 
     recognition.onresult = (event) => {
       const spoken = event.results[0][0].transcript.toLowerCase();
-      log(`🎤 "${spoken}"`);
+      log(`🎤 ${spoken}`);
       handleCommand(spoken);
     };
   }
@@ -334,7 +333,7 @@
     } else if (text.includes("call emergency")) {
       log("📞 Calling emergency contact...");
       speak("Calling your emergency contact.");
-         window.location.href = "tel:+917020572471";
+      window.location.href = "tel:+917020572471";
     } else if (text.includes("send my location")) {
       if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(pos => {
@@ -354,11 +353,11 @@
           speak(`Your battery is at ${level} percent.`);
         });
       } else {
-        log("⚠️ Battery API not supported.");
+        log("⚠ Battery API not supported.");
         speak("Battery status is not supported on your device.");
       }
     } else if (text.includes("open map")) {
-      log("🗺️ Opening map view.");
+      log("🗺 Opening map view.");
       mapFrame.src = "https://www.google.com/maps/embed/v1/view?key=YOUR_GOOGLE_MAPS_API_KEY&center=20.932,74.525&zoom=14";
       speak("Here's your current area on the map.");
     } else {
