@@ -1,59 +1,195 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
   <title>Safe Route Lite</title>
+
+  <!-- Skip if already seen -->
+  <script>
+    if (localStorage.getItem("SR_seen") === "true") {
+      window.location.replace("home.html");
+    }
+  </script>
+
   <style>
-    body {
+    * {
       margin: 0;
       padding: 0;
-      font-family: Arial, sans-serif;
-      background-color: #1E88E5;
-      color: #fff;
+      box-sizing: border-box;
+      font-family: "Inter", sans-serif;
+    }
+
+    body {
+      height: 100vh;
+      background: white;
+      color: #0A1A2F;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      align-items: center;
+      padding: 20px 20px 32px;
+      text-align: center;
+    }
+
+    /* CENTER CONTAINER */
+    .center-box {
+      flex: 1;
       display: flex;
       flex-direction: column;
       justify-content: center;
       align-items: center;
-      height: 100vh;
-      text-align: center;
+      gap: 16px;
+      width: 100%;
     }
-    h1 {
-      margin: 10px 0;
-      font-size: 24px;
+
+    /* IMAGE LOGO */
+    .logo-img {
+      width: 120px;
+      height: 120px;
+      object-fit: contain;
+      border-radius: 16px;
+      box-shadow: 0 10px 30px rgba(26,86,219,0.28);
     }
-    p {
-      margin: 5px 0 30px;
-      font-size: 16px;
+
+    /* TITLE */
+    .title {
+      font-size: 26px;
+      font-weight: 700;
     }
-    .btn {
-      background-color: #fff;
-      color: #1E88E5;
+
+    .subtitle {
+      font-size: 14px;
+      color: #1A56DB;
+      opacity: 0.85;
+    }
+
+    /* INTERNET STATUS */
+    .net {
+      margin-top: 6px;
+      font-size: 13px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: #EF4444;
+      box-shadow: 0 0 6px rgba(239,68,68,0.8);
+      transition: 0.2s ease;
+    }
+
+    /* TIMER */
+    .timer {
+      font-size: 12px;
+      opacity: 0.7;
+    }
+
+    /* BOTTOM AREA */
+    .bottom-box {
+      width: 100%;
+      max-width: 380px;
+    }
+
+    .start-btn {
+      width: 100%;
+      padding: 14px;
       border: none;
-      padding: 12px 30px;
-      border-radius: 8px;
-      font-size: 16px;
+      border-radius: 999px;
+      background: #1A56DB;
+      color: white;
+      font-size: 15px;
+      font-weight: 600;
       cursor: pointer;
-      transition: 0.3s;
+      letter-spacing: 0.08em;
+      box-shadow: 0 8px 20px rgba(26,86,219,0.35);
     }
-    .btn:hover {
-      background-color: #e6e6e6;
+
+    .start-btn:active {
+      transform: scale(0.97);
     }
-    .shield-icon {
-      width: 70px;
-      height: 70px;
-      margin-bottom: 20px;
+
+    .auto {
+      margin-top: 6px;
+      font-size: 12px;
+      opacity: 0.7;
     }
   </style>
 </head>
+
 <body>
-  <div>
-    <svg class="shield-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="white">
-      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 2l7 4v6c0 5-3.5 9.5-7 10-3.5-.5-7-5-7-10V6l7-4z" />
-    </svg>
-    <h1>Safe Route Lite</h1>
-    <p>Your safety companion</p>
-    <button class="btn" onclick="window.location.href='safe2.html'">Get Started</button>
+
+  <div class="center-box">
+
+    <!-- IMAGE LOGO -->
+    <img src="logo.png" class="logo-img" alt="App Logo">
+
+    <div class="title">Safe Route Lite</div>
+    <div class="subtitle">Protection • Security • Trust</div>
+
+    <div class="net">
+      <div id="netDot" class="dot"></div>
+      <div id="netText">Checking Internet...</div>
+    </div>
+
+    <div class="timer">Starting in <span id="timer">5</span>s</div>
+
   </div>
+
+  <div class="bottom-box">
+    <button class="start-btn" onclick="startNow()">Start</button>
+    <div class="auto">Auto continue in <span id="timer2">5</span>s</div>
+  </div>
+
+  <script>
+    const NEXT = "safe2.html";
+
+    function goNext() {
+      localStorage.setItem("SR_seen","true");
+      window.location.href = NEXT;
+    }
+
+    // countdown
+    let t = 5;
+    const timer = setInterval(() => {
+      t--;
+      document.getElementById("timer").textContent = t;
+      document.getElementById("timer2").textContent = t;
+
+      if (t <= 0) {
+        clearInterval(timer);
+        goNext();
+      }
+    }, 1000);
+
+    function startNow() {
+      clearInterval(timer);
+      goNext();
+    }
+
+    // Internet Check
+    function checkNet() {
+      const dot = document.getElementById("netDot");
+      const text = document.getElementById("netText");
+
+      if (navigator.onLine) {
+        dot.style.background = "#22C55E";
+        dot.style.boxShadow = "0 0 6px rgba(34,197,94,0.9)";
+        text.innerText = "Connected";
+      } else {
+        dot.style.background = "#EF4444";
+        dot.style.boxShadow = "0 0 6px rgba(239,68,68,0.9)";
+        text.innerText = "No Internet";
+      }
+    }
+
+    setInterval(checkNet, 900);
+    checkNet();
+  </script>
+
 </body>
 </html>
